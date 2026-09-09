@@ -5,13 +5,25 @@
     "email": "72309817+byungsker@users.noreply.github.com"
   },
   "metadata": {
-    "description": "Agent-neutral portable Skills and native plugins for issue management, worktree workflows, database safety, and frontend code quality"
+    "description": "Agent-neutral portable Skills and native plugins for safe development, storage, power, transfer, documentation, and frontend workflows"
   },
   "plugins": [
+    {
+      "name": "business-messenger-to-obsidian",
+      "source": "./plugins/business-messenger-to-obsidian",
+      "description": "Evidence-bound Korean handoff history from work-messenger exports",
+      "version": "1.0.0"
+    },
     {
       "name": "db-safety",
       "source": "./plugins/db-safety",
       "description": "Backend/Server/DB Safety Protocol - Dangerous operation approval and safe migration",
+      "version": "1.0.0"
+    },
+    {
+      "name": "form-validation-patterns",
+      "source": "./plugins/form-validation-patterns",
+      "description": "Framework-neutral web form validation and state-contract review",
       "version": "1.0.0"
     },
     {
@@ -25,6 +37,30 @@
       "source": "./plugins/linear-simple",
       "description": "Linear GraphQL API skill for issue CRUD, comments, and status changes",
       "version": "1.1.6"
+    },
+    {
+      "name": "mac-storage-steward",
+      "source": "./plugins/mac-storage-steward",
+      "description": "Evidence-first Mac storage audit and approval-gated cleanup",
+      "version": "1.0.0"
+    },
+    {
+      "name": "macbook-power-profile",
+      "source": "./plugins/macbook-power-profile",
+      "description": "Safe macOS sleep, closed-lid, charge-limit, and battery-health workflows",
+      "version": "1.0.0"
+    },
+    {
+      "name": "remote-mac-folder-copy",
+      "source": "./plugins/remote-mac-folder-copy",
+      "description": "SSH folder transfer to a specified Mac with checksum verification",
+      "version": "1.0.0"
+    },
+    {
+      "name": "resume-first-page-review",
+      "source": "./plugins/resume-first-page-review",
+      "description": "Evidence-bound first-page resume clarity and target-fit review",
+      "version": "1.0.0"
     },
     {
       "name": "toss-frontend-fundamentals",

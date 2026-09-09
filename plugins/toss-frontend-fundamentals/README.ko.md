@@ -1,6 +1,6 @@
 # Toss Frontend Fundamentals
 
-[English](README.md) | [한국어](README.ko.md)
+[영문](README.md) | [한국어](README.ko.md)
 
 | | |
 |---|---|
@@ -74,16 +74,19 @@ hermes skills install \
 
 ### 방법 5: OpenClaw 네이티브 Skill 설치
 
-OpenClaw는 `SKILL.md`가 루트에 있는 로컬 Skill 디렉터리를 설치 대상으로 받습니다. 저장소를 클론한 뒤 TFF 하위 디렉터리를 지정하면 원문 참조 파일도 함께 설치됩니다.
+현재 OpenClaw CLI에는 Skill 설치 하위 명령이 없습니다. 저장소를 클론한 뒤 TFF Skill 디렉터리를 관리되는 전역 Skill 디렉터리에 복사하면 원문 참조 파일도 함께 배치됩니다.
 
 ```bash
+REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
-git clone --depth 1 https://github.com/byungsker/opengiver-skills.git "$repo_dir"
-openclaw skills install "$repo_dir/plugins/toss-frontend-fundamentals/skills/toss-frontend-fundamentals" \
-  --as toss-frontend-fundamentals --global
+git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
+target="$HOME/.openclaw/skills/toss-frontend-fundamentals"
+mkdir -p "$target"
+cp -R "$repo_dir/plugins/toss-frontend-fundamentals/skills/toss-frontend-fundamentals/." "$target/"
+openclaw skills list
 ```
 
-`--global`은 `~/.openclaw/skills/toss-frontend-fundamentals`에 설치합니다. `openclaw skills install`이 없는 구버전은 OpenClaw를 먼저 업데이트하거나 활성 workspace의 `skills/toss-frontend-fundamentals`에 해당 디렉터리를 배치하세요.
+관리되는 전역 경로는 `~/.openclaw/skills/toss-frontend-fundamentals`입니다. 작업 공간에만 설치하려면 같은 디렉터리를 해당 작업 공간의 `skills/toss-frontend-fundamentals`에 복사하세요.
 
 ### 방법 6: TFF 원문 스냅샷 전체 배치
 

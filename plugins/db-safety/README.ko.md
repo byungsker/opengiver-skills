@@ -1,6 +1,6 @@
 # DB Safety
 
-[English](README.md) | [한국어](README.ko.md)
+[영문](README.md) | [한국어](README.ko.md)
 
 | | |
 |---|---|
@@ -71,13 +71,16 @@ hermes skills install \
 ### 방법 5: OpenClaw 네이티브 Skill 설치
 
 ```bash
+REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
-git clone --depth 1 https://github.com/byungsker/opengiver-skills.git "$repo_dir"
-openclaw skills install "$repo_dir/plugins/db-safety/skills/db-safety" \
-  --as db-safety --global
+git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
+target="$HOME/.openclaw/skills/db-safety"
+mkdir -p "$target"
+cp -R "$repo_dir/plugins/db-safety/skills/db-safety/." "$target/"
+openclaw skills list
 ```
 
-`--global`은 `~/.openclaw/skills/db-safety`에 설치합니다. `openclaw skills install`이 없는 구버전은 OpenClaw를 먼저 업데이트하거나 활성 workspace의 `skills/db-safety`에 해당 디렉터리를 배치하세요.
+현재 OpenClaw CLI에는 Skill 설치 하위 명령이 없으므로 위 명령은 관리되는 전역 Skill 디렉터리에 복사합니다. 작업 공간에만 설치하려면 같은 디렉터리를 해당 작업 공간의 `skills/db-safety`에 복사하세요.
 
 ### 선택 사항: Claude Code UI 또는 저장소 클론
 

@@ -1,13 +1,13 @@
 # Linear Simple
 
-[English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [Korean](README.ko.md)
 
 | | |
 |---|---|
 | **Name** | linear-simple |
 | **Description** | Linear GraphQL API skill - Direct curl calls without MCP for better token efficiency |
 | **Version** | 1.1.6 |
-| **Triggers** | "Linear issue", "BYU-125", "이슈 확인", "create issue" |
+| **Triggers** | "Linear issue", "BYU-125", "check issue", "create issue" |
 
 ---
 
@@ -24,9 +24,9 @@ A Claude Code plugin for Linear GraphQL API. Direct curl calls without MCP, impr
 
 ## Installation
 
-### 방법 1: 네 에이전트 공용 Skill 설치 (`npx skills`)
+### Method 1: Install the shared Skill for all agents (`npx skills`)
 
-portable `SKILL.md`를 Codex, Claude Code, Hermes Agent, OpenClaw 순서로 설치합니다.
+Install the portable `SKILL.md` for Codex, Claude Code, Hermes Agent, and OpenClaw in that order.
 
 ```bash
 npx skills add https://github.com/byungsker/opengiver-skills \
@@ -35,28 +35,28 @@ npx skills add https://github.com/byungsker/opengiver-skills \
   --global --copy --yes --full-depth
 ```
 
-| 에이전트 | 기본 경로 |
+| Agent | Default path |
 |---|---|
 | Codex | `~/.agents/skills/linear-simple` |
 | Claude Code | `~/.claude/skills/linear-simple` |
 | Hermes Agent | `~/.hermes/skills/linear-simple` |
 | OpenClaw | `~/.openclaw/skills/linear-simple` |
 
-### 방법 2: Codex 네이티브 플러그인 설치
+### Method 2: Install the native Codex plugin
 
 ```bash
 codex plugin marketplace add byungsker/opengiver-skills --ref main
 codex plugin add linear-simple@opengiver-skills
 ```
 
-### 방법 3: Claude Code 네이티브 플러그인 설치
+### Method 3: Install the native Claude Code plugin
 
 ```bash
 claude plugin marketplace add byungsker/opengiver-skills
 claude plugin install linear-simple@opengiver-skills
 ```
 
-### 방법 4: Hermes Agent 네이티브 Skill 설치
+### Method 4: Install the native Hermes Agent Skill
 
 ```bash
 hermes skills install \
@@ -64,16 +64,19 @@ hermes skills install \
   --yes
 ```
 
-### 방법 5: OpenClaw 네이티브 Skill 설치
+### Method 5: Install the native OpenClaw Skill
 
 ```bash
+REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
-git clone --depth 1 https://github.com/byungsker/opengiver-skills.git "$repo_dir"
-openclaw skills install "$repo_dir/plugins/linear-simple/skills/linear-simple" \
-  --as linear-simple --global
+git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
+target="$HOME/.openclaw/skills/linear-simple"
+mkdir -p "$target"
+cp -R "$repo_dir/plugins/linear-simple/skills/linear-simple/." "$target/"
+openclaw skills list
 ```
 
-`openclaw skills install`이 없는 구버전은 OpenClaw를 업데이트하거나 활성 workspace의 `skills/linear-simple`에 해당 디렉터리를 배치하세요.
+The current OpenClaw CLI has no Skill install subcommand; the copy above uses its managed global Skill directory. For a workspace-only installation, copy the same directory to `skills/linear-simple` in that workspace.
 
 ## Setup (Required)
 

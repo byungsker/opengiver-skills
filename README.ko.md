@@ -27,9 +27,15 @@ Opengiver는 좋은 것이 그것을 발견한 사람에게서 멈추면 안 된
 
 | 플러그인 | 버전 | 설명 | 명령어 |
 |----------|------|------|--------|
+| [business-messenger-to-obsidian](plugins/business-messenger-to-obsidian) | `1.0.0` | 업무 메신저 export를 근거 중심의 한글 인수인계 기록으로 정리 | Skill 전용 (명령어 없음) |
 | [linear-simple](plugins/linear-simple) | `1.1.6` | 이슈 관리를 위한 Linear GraphQL API | `/linear-simple:setup`, `/linear-simple:get`, `/linear-simple:create` |
 | [git-worktree](plugins/git-worktree) | `1.0.0` | 격리된 작업 공간으로 안전한 병렬 개발을 위한 Git 워크트리 프로토콜 | Skill 전용 (명령어 없음) |
 | [db-safety](plugins/db-safety) | `1.0.0` | 실수로 인한 데이터 손실을 방지하는 데이터베이스 안전 프로토콜 | Skill 전용 (명령어 없음) |
+| [form-validation-patterns](plugins/form-validation-patterns) | `1.0.0` | 프레임워크에 종속되지 않은 웹 폼 검증과 상태 계약 검토 | Skill 전용 (명령어 없음) |
+| [mac-storage-steward](plugins/mac-storage-steward) | `1.0.0` | 근거 중심의 Mac 저장 공간 감사와 승인 기반 정리 | Skill 전용 (명령어 없음) |
+| [macbook-power-profile](plugins/macbook-power-profile) | `1.0.0` | macOS 잠자기·뚜껑 닫힘·충전 한도·배터리 건강 흐름 | Skill 전용 (명령어 없음) |
+| [remote-mac-folder-copy](plugins/remote-mac-folder-copy) | `1.0.0` | 체크섬 검증을 포함한 지정 Mac SSH 폴더 전송 | Skill 전용 (명령어 없음) |
+| [resume-first-page-review](plugins/resume-first-page-review) | `1.0.0` | 근거 중심의 이력서 첫 페이지 명확성과 직무 적합성 검토 | Skill 전용 (명령어 없음) |
 | [toss-frontend-fundamentals](plugins/toss-frontend-fundamentals) | `1.0.0` | React·TypeScript 코드를 Toss 원문 근거로 검토하는 Skill | Skill 전용 (명령어 없음) |
 
 ## 설치
@@ -39,7 +45,7 @@ Opengiver는 좋은 것이 그것을 발견한 사람에게서 멈추면 안 된
 아래 명령은 이식 가능한 `SKILL.md`와 연결된 참조 파일을 네 에이전트의 사용자 Skill 디렉터리에 복사합니다. 설치 대상 순서는 항상 Codex, Claude Code, Hermes Agent, OpenClaw입니다. 플러그인 명령이나 마켓플레이스 기능은 포함되지 않습니다.
 
 ```bash
-for skill in linear-simple db-safety git-worktree toss-frontend-fundamentals; do
+for skill in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   npx skills add https://github.com/byungsker/opengiver-skills \
     --skill "$skill" \
     --agent codex claude-code hermes-agent openclaw \
@@ -70,7 +76,7 @@ npx skills add https://github.com/byungsker/opengiver-skills \
 
 ```bash
 codex plugin marketplace add byungsker/opengiver-skills --ref main
-for plugin in linear-simple db-safety git-worktree toss-frontend-fundamentals; do
+for plugin in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   codex plugin add "$plugin@opengiver-skills"
 done
 ```
@@ -81,7 +87,7 @@ done
 
 ```bash
 claude plugin marketplace add byungsker/opengiver-skills
-for plugin in linear-simple db-safety git-worktree toss-frontend-fundamentals; do
+for plugin in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   claude plugin install "$plugin@opengiver-skills"
 done
 ```
@@ -93,7 +99,7 @@ done
 Hermes Agent의 Skill 설치 명령은 `SKILL.md` URL을 직접 받습니다.
 
 ```bash
-for skill in linear-simple db-safety git-worktree toss-frontend-fundamentals; do
+for skill in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   hermes skills install \
     "https://raw.githubusercontent.com/byungsker/opengiver-skills/main/plugins/$skill/skills/$skill/SKILL.md" \
     --yes
@@ -104,18 +110,21 @@ done
 
 ### 방법 5: OpenClaw 네이티브 Skill 설치
 
-OpenClaw는 `SKILL.md`가 루트에 있는 로컬 Skill 디렉터리를 설치 대상으로 받습니다. 이 저장소는 여러 Skill을 담고 있으므로 저장소를 클론한 뒤 각 Skill 하위 디렉터리를 지정합니다.
+현재 OpenClaw CLI는 Skill에 대해 `list`, `check`, `info`를 제공하지만 `install` 하위 명령은 제공하지 않습니다. Skill 디렉터리를 OpenClaw가 관리하는 Skill 디렉터리에 복사한 뒤 `openclaw skills list`로 확인합니다.
 
 ```bash
+REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
-git clone --depth 1 https://github.com/byungsker/opengiver-skills.git "$repo_dir"
-for skill in linear-simple db-safety git-worktree toss-frontend-fundamentals; do
-  openclaw skills install "$repo_dir/plugins/$skill/skills/$skill" \
-    --as "$skill" --global
+git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
+for skill in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+  target="$HOME/.openclaw/skills/$skill"
+  mkdir -p "$target"
+  cp -R "$repo_dir/plugins/$skill/skills/$skill/." "$target/"
 done
+openclaw skills list
 ```
 
-`--global`은 `~/.openclaw/skills`에 설치합니다. `openclaw skills install`이 없는 구버전은 OpenClaw를 먼저 업데이트하거나, 활성 작업 공간의 `skills/<skill>`에 동일한 Skill 디렉터리를 배치하세요.
+전역 관리 디렉터리는 `~/.openclaw/skills`입니다. 한 작업 공간에만 설치하려면 같은 디렉터리를 해당 작업 공간의 `skills/<skill>`에 복사하세요.
 
 ### 선택 사항: Claude Code UI 또는 저장소 클론
 
@@ -197,6 +206,54 @@ MCP 없이 Linear GraphQL API를 직접 호출하여 토큰 효율성을 50-70% 
 
 ---
 
+### business-messenger-to-obsidian
+
+사용자가 지정한 Obsidian vault에 업무 메신저 export를 근거 중심의 한글 인수인계 기록으로 정리합니다. 원본 범위와 기준 시점을 보존하고, 직접 대화·간접 언급·현재 상태의 불확실성을 분리합니다.
+
+[전체 문서 보기 →](plugins/business-messenger-to-obsidian/README.ko.md)
+
+---
+
+### form-validation-patterns
+
+프로젝트의 디자인 시스템, 상태 계약, API 경계, 접근성, 재시도, 오래된 응답 보호를 기준으로 웹 폼을 구현하거나 검토합니다.
+
+[전체 문서 보기 →](plugins/form-validation-patterns/README.ko.md)
+
+---
+
+### mac-storage-steward
+
+읽기 전용 근거로 Mac 저장 공간을 감사하고, 정리 위험을 분류하며, 삭제·정리 작업에는 명시적 선택과 사후 검증을 요구합니다.
+
+[전체 문서 보기 →](plugins/mac-storage-steward/README.ko.md)
+
+---
+
+### macbook-power-profile
+
+macOS 잠자기 방지, 뚜껑 닫힘 실행, 기본 충전 한도, 배터리 건강 보고를 각각의 근거를 가진 흐름으로 분리합니다.
+
+[전체 문서 보기 →](plugins/macbook-power-profile/README.ko.md)
+
+---
+
+### remote-mac-folder-copy
+
+사용자가 지정한 폴더를 SSH로 원격 Mac에 복사하고, 원본을 보존하며, 체크섬 기반 dry-run으로 결과를 검증합니다.
+
+[전체 문서 보기 →](plugins/remote-mac-folder-copy/README.ko.md)
+
+---
+
+### resume-first-page-review
+
+이력서 첫 페이지 또는 첫 화면의 첫인상 명확성, 목표 직무 적합성, 근거 밀도, 고정 레이아웃 가독성을 검토합니다.
+
+[전체 문서 보기 →](plugins/resume-first-page-review/README.ko.md)
+
+---
+
 ### toss-frontend-fundamentals
 
 가독성, 예측 가능성, 응집도, 결합도 기준으로 React·TypeScript 프론트엔드 코드를 검토합니다. 요약만 제공하는 것이 아니라 대응되는 Toss 원문 문서를 함께 포함하므로, 발견 사항을 만들기 전에 관련 원문을 실제로 읽을 수 있습니다.
@@ -228,6 +285,30 @@ opengiver-skills/
 │   │   ├── skills/
 │   │   └── README.md
 │   ├── db-safety/                # 데이터베이스 안전 프로토콜 플러그인
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── business-messenger-to-obsidian/ # 업무 메신저 인수인계 기록
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── form-validation-patterns/  # 웹 폼 검증과 상태 검토
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── mac-storage-steward/       # 근거 중심 Mac 저장 공간 관리
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── macbook-power-profile/     # macOS 전원과 배터리 흐름
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── remote-mac-folder-copy/    # 검증 가능한 SSH 폴더 전송
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── resume-first-page-review/   # 근거 중심 이력서 첫 페이지 검토
 │   │   ├── .claude-plugin/
 │   │   ├── skills/
 │   │   └── README.md

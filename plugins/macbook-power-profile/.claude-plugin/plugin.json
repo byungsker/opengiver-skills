@@ -1,0 +1,5 @@
+{
+  "name": "macbook-power-profile",
+  "description": "Safe macOS MacBook power, clamshell, charge-limit, and battery-health workflows",
+  "version": "1.0.0"
+}

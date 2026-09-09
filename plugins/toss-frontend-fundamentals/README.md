@@ -1,6 +1,6 @@
 # Toss Frontend Fundamentals
 
-[English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [Korean](README.ko.md)
 
 | | |
 |---|---|
@@ -20,9 +20,9 @@ The package includes the code-quality source snapshot, a routing manifest, a rev
 
 ## Installation
 
-### 방법 1: 네 에이전트 공용 Skill 설치 (`npx skills`)
+### Method 1: Install the shared Skill for all agents (`npx skills`)
 
-`skills` CLI를 사용하면 원문 스냅샷과 연결된 참조 파일을 포함한 TFF Skill 전체를 네 에이전트에 복사할 수 있습니다. 설치 대상 순서는 Codex, Claude Code, Hermes Agent, OpenClaw입니다.
+The `skills` CLI copies the complete TFF Skill, including the source snapshot and linked reference files, to all four agents. The order is Codex, Claude Code, Hermes Agent, and OpenClaw.
 
 ```bash
 npx skills add https://github.com/byungsker/opengiver-skills \
@@ -31,38 +31,38 @@ npx skills add https://github.com/byungsker/opengiver-skills \
   --global --copy --yes --full-depth
 ```
 
-한 런타임에만 설치하려면 `--agent` 값을 `codex`, `claude-code`, `hermes-agent`, `openclaw` 중 하나로 바꾸세요.
+To install for one runtime, keep only one value after `--agent`: `codex`, `claude-code`, `hermes-agent`, or `openclaw`.
 
-기본 설치 경로:
+Default installation paths:
 
-| 에이전트 | 경로 |
+| Agent | Path |
 |---|---|
 | Codex | `~/.agents/skills/toss-frontend-fundamentals` |
 | Claude Code | `~/.claude/skills/toss-frontend-fundamentals` |
 | Hermes Agent | `~/.hermes/skills/toss-frontend-fundamentals` |
 | OpenClaw | `~/.openclaw/skills/toss-frontend-fundamentals` |
 
-### 방법 2: Codex 네이티브 플러그인 설치
+### Method 2: Install the native Codex plugin
 
-Codex 플러그인은 TFF 매니페스트와 원문 참조 스냅샷을 함께 설치합니다.
+The Codex plugin installs the TFF manifest and source-reference snapshot together.
 
 ```bash
 codex plugin marketplace add byungsker/opengiver-skills --ref main
 codex plugin add toss-frontend-fundamentals@opengiver-skills
 ```
 
-### 방법 3: Claude Code 네이티브 플러그인 설치
+### Method 3: Install the native Claude Code plugin
 
-Claude Code 플러그인은 TFF의 Skill과 원문 참조 스냅샷을 함께 설치합니다.
+The Claude Code plugin installs the TFF Skill and source-reference snapshot together.
 
 ```bash
 claude plugin marketplace add byungsker/opengiver-skills
 claude plugin install toss-frontend-fundamentals@opengiver-skills
 ```
 
-### 방법 4: Hermes Agent 네이티브 Skill 설치
+### Method 4: Install the native Hermes Agent Skill
 
-Hermes Agent는 `SKILL.md` URL을 직접 설치합니다.
+Hermes Agent installs a Skill from a direct `SKILL.md` URL.
 
 ```bash
 hermes skills install \
@@ -70,24 +70,27 @@ hermes skills install \
   --yes
 ```
 
-현재 Hermes Agent의 URL 설치는 TFF 진입점 Skill 중심이므로 `references/source/` 원문 스냅샷 전체가 필요하면 방법 1 또는 방법 6을 사용하세요.
+The current Hermes Agent URL installation is centered on the TFF entry Skill. Use Method 1 or Method 6 when the complete `references/source/` snapshot is required.
 
-### 방법 5: OpenClaw 네이티브 Skill 설치
+### Method 5: Install the native OpenClaw Skill
 
-OpenClaw는 `SKILL.md`가 루트에 있는 로컬 Skill 디렉터리를 설치 대상으로 받습니다. 저장소를 클론한 뒤 TFF 하위 디렉터리를 지정하면 원문 참조 파일도 함께 설치됩니다.
+The current OpenClaw CLI has no Skill install subcommand. Copy the local TFF Skill directory to OpenClaw's managed global Skill directory; its references are copied with it.
 
 ```bash
+REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
-git clone --depth 1 https://github.com/byungsker/opengiver-skills.git "$repo_dir"
-openclaw skills install "$repo_dir/plugins/toss-frontend-fundamentals/skills/toss-frontend-fundamentals" \
-  --as toss-frontend-fundamentals --global
+git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
+target="$HOME/.openclaw/skills/toss-frontend-fundamentals"
+mkdir -p "$target"
+cp -R "$repo_dir/plugins/toss-frontend-fundamentals/skills/toss-frontend-fundamentals/." "$target/"
+openclaw skills list
 ```
 
-`--global`은 `~/.openclaw/skills/toss-frontend-fundamentals`에 설치합니다. `openclaw skills install`이 없는 구버전은 OpenClaw를 먼저 업데이트하거나 활성 workspace의 `skills/toss-frontend-fundamentals`에 해당 디렉터리를 배치하세요.
+The managed global directory is `~/.openclaw/skills/toss-frontend-fundamentals`. For a workspace-only installation, copy the same directory to that workspace's `skills/toss-frontend-fundamentals`.
 
-### 방법 6: TFF 원문 스냅샷 전체 배치
+### Method 6: Deploy the complete TFF source snapshot
 
-저장소를 클론한 뒤 플러그인 전용 설치 스크립트를 실행합니다. 이 방법은 TFF의 전체 참조 파일을 각 대상에 배치합니다.
+Clone the repository and run the plugin-specific installer. This places the complete TFF reference files for each selected target.
 
 ```bash
 git clone https://github.com/byungsker/opengiver-skills.git
@@ -95,9 +98,9 @@ cd opengiver-skills
 ./plugins/toss-frontend-fundamentals/install.sh --target all
 ```
 
-한 대상에만 설치하려면 `--target codex`, `--target claude`, `--target hermes`, `--target openclaw` 중 하나를 사용합니다.
+To target one agent, use one of `--target codex`, `--target claude`, `--target hermes`, or `--target openclaw`.
 
-스크립트 전용 기본 경로는 Codex `~/.codex/skills`, Claude Code `~/.claude/skills`, Hermes Agent `~/.hermes/skills`, OpenClaw `~/.openclaw/skills`입니다. `CODEX_HOME`, `CLAUDE_HOME`, `HERMES_HOME`, `OPENCLAW_HOME` 환경 변수로 홈 경로를 바꿀 수 있습니다. 기존 설치는 기본적으로 보존하며, 덮어쓰려면 `--force`를 사용합니다. 이때 기존 디렉터리는 타임스탬프 백업으로 이동합니다.
+The installer defaults to Codex `~/.codex/skills`, Claude Code `~/.claude/skills`, Hermes Agent `~/.hermes/skills`, and OpenClaw `~/.openclaw/skills`. Override home paths with `CODEX_HOME`, `CLAUDE_HOME`, `HERMES_HOME`, or `OPENCLAW_HOME`. Existing installations are preserved by default; use `--force` to overwrite, which moves the existing directory to a timestamped backup.
 
 ## Usage
 

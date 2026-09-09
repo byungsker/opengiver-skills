@@ -1,13 +1,13 @@
 # Git Worktree
 
-[English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [Korean](README.ko.md)
 
 | | |
 |---|---|
 | **Name** | git-worktree |
 | **Description** | Git Worktree Protocol - Parallel development with isolated workspaces, wt CLI, and environment management |
 | **Version** | 1.0.0 |
-| **Triggers** | "worktree", "wt", "구현 시작", "작업 시작", "feature 브랜치", "Start implementing", "Create feature branch", "parallel development" |
+| **Triggers** | "worktree", "wt", "start implementation", "start work", "feature branch", "Start implementing", "Create feature branch", "parallel development" |
 
 ---
 
@@ -26,9 +26,9 @@ A Claude Code skill for Git Worktree Protocol. Enables safe parallel development
 
 ## Installation
 
-### 방법 1: 네 에이전트 공용 Skill 설치 (`npx skills`)
+### Method 1: Install the shared Skill for all agents (`npx skills`)
 
-portable `SKILL.md`를 Codex, Claude Code, Hermes Agent, OpenClaw 순서로 설치합니다.
+Install the portable `SKILL.md` for Codex, Claude Code, Hermes Agent, and OpenClaw in that order.
 
 ```bash
 npx skills add https://github.com/byungsker/opengiver-skills \
@@ -37,28 +37,28 @@ npx skills add https://github.com/byungsker/opengiver-skills \
   --global --copy --yes --full-depth
 ```
 
-| 에이전트 | 기본 경로 |
+| Agent | Default path |
 |---|---|
 | Codex | `~/.agents/skills/git-worktree` |
 | Claude Code | `~/.claude/skills/git-worktree` |
 | Hermes Agent | `~/.hermes/skills/git-worktree` |
 | OpenClaw | `~/.openclaw/skills/git-worktree` |
 
-### 방법 2: Codex 네이티브 플러그인 설치
+### Method 2: Install the native Codex plugin
 
 ```bash
 codex plugin marketplace add byungsker/opengiver-skills --ref main
 codex plugin add git-worktree@opengiver-skills
 ```
 
-### 방법 3: Claude Code 네이티브 플러그인 설치
+### Method 3: Install the native Claude Code plugin
 
 ```bash
 claude plugin marketplace add byungsker/opengiver-skills
 claude plugin install git-worktree@opengiver-skills
 ```
 
-### 방법 4: Hermes Agent 네이티브 Skill 설치
+### Method 4: Install the native Hermes Agent Skill
 
 ```bash
 hermes skills install \
@@ -66,16 +66,19 @@ hermes skills install \
   --yes
 ```
 
-### 방법 5: OpenClaw 네이티브 Skill 설치
+### Method 5: Install the native OpenClaw Skill
 
 ```bash
+REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
-git clone --depth 1 https://github.com/byungsker/opengiver-skills.git "$repo_dir"
-openclaw skills install "$repo_dir/plugins/git-worktree/skills/git-worktree" \
-  --as git-worktree --global
+git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
+target="$HOME/.openclaw/skills/git-worktree"
+mkdir -p "$target"
+cp -R "$repo_dir/plugins/git-worktree/skills/git-worktree/." "$target/"
+openclaw skills list
 ```
 
-`openclaw skills install`이 없는 구버전은 OpenClaw를 업데이트하거나 활성 workspace의 `skills/git-worktree`에 해당 디렉터리를 배치하세요.
+The current OpenClaw CLI has no Skill install subcommand; the copy above uses its managed global Skill directory. For a workspace-only installation, copy the same directory to `skills/git-worktree` in that workspace.
 
 ## Quick Start
 

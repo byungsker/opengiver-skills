@@ -1,0 +1,5 @@
+{
+  "name": "mac-storage-steward",
+  "description": "Read-only Mac storage inventory, risk classification, approval-gated cleanup, and verification",
+  "version": "1.0.0"
+}

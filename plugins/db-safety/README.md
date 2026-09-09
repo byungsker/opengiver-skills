@@ -1,13 +1,13 @@
 # DB Safety
 
-[English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [Korean](README.ko.md)
 
 | | |
 |---|---|
 | **Name** | db-safety |
 | **Description** | Backend/Server/DB Safety Protocol - Dangerous operation approval, SQL query guide, safe migration patterns |
 | **Version** | 1.0.0 |
-| **Triggers** | "DROP TABLE", "ALTER COLUMN", "DELETE FROM", "마이그레이션", "DB 스키마", "데이터 삭제", "테이블 변경", "SQL 쿼리", "Supabase", "dangerous operation" |
+| **Triggers** | "DROP TABLE", "ALTER COLUMN", "DELETE FROM", "migration", "DB schema", "data deletion", "table change", "SQL query", "Supabase", "dangerous operation" |
 
 ---
 
@@ -24,9 +24,9 @@ A Claude Code plugin for safe database operations. Prevents accidental data loss
 
 ## Installation
 
-### 방법 1: 네 에이전트 공용 Skill 설치 (`npx skills`)
+### Method 1: Install the shared Skill for all agents (`npx skills`)
 
-portable `SKILL.md`를 Codex, Claude Code, Hermes Agent, OpenClaw 순서로 설치합니다.
+Install the portable `SKILL.md` for Codex, Claude Code, Hermes Agent, and OpenClaw in that order.
 
 ```bash
 npx skills add https://github.com/byungsker/opengiver-skills \
@@ -35,28 +35,28 @@ npx skills add https://github.com/byungsker/opengiver-skills \
   --global --copy --yes --full-depth
 ```
 
-| 에이전트 | 기본 경로 |
+| Agent | Default path |
 |---|---|
 | Codex | `~/.agents/skills/db-safety` |
 | Claude Code | `~/.claude/skills/db-safety` |
 | Hermes Agent | `~/.hermes/skills/db-safety` |
 | OpenClaw | `~/.openclaw/skills/db-safety` |
 
-### 방법 2: Codex 네이티브 플러그인 설치
+### Method 2: Install the native Codex plugin
 
 ```bash
 codex plugin marketplace add byungsker/opengiver-skills --ref main
 codex plugin add db-safety@opengiver-skills
 ```
 
-### 방법 3: Claude Code 네이티브 플러그인 설치
+### Method 3: Install the native Claude Code plugin
 
 ```bash
 claude plugin marketplace add byungsker/opengiver-skills
 claude plugin install db-safety@opengiver-skills
 ```
 
-### 방법 4: Hermes Agent 네이티브 Skill 설치
+### Method 4: Install the native Hermes Agent Skill
 
 ```bash
 hermes skills install \
@@ -64,16 +64,19 @@ hermes skills install \
   --yes
 ```
 
-### 방법 5: OpenClaw 네이티브 Skill 설치
+### Method 5: Install the native OpenClaw Skill
 
 ```bash
+REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
-git clone --depth 1 https://github.com/byungsker/opengiver-skills.git "$repo_dir"
-openclaw skills install "$repo_dir/plugins/db-safety/skills/db-safety" \
-  --as db-safety --global
+git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
+target="$HOME/.openclaw/skills/db-safety"
+mkdir -p "$target"
+cp -R "$repo_dir/plugins/db-safety/skills/db-safety/." "$target/"
+openclaw skills list
 ```
 
-`openclaw skills install`이 없는 구버전은 OpenClaw를 업데이트하거나 활성 workspace의 `skills/db-safety`에 해당 디렉터리를 배치하세요.
+The current OpenClaw CLI has no Skill install subcommand; the copy above uses its managed global Skill directory. For a workspace-only installation, copy the same directory to `skills/db-safety` in that workspace.
 
 ## Usage
 

@@ -1,0 +1,5 @@
+{
+  "name": "form-validation-patterns",
+  "description": "State, error, accessibility, retry, and API-boundary review for web forms",
+  "version": "1.0.0"
+}

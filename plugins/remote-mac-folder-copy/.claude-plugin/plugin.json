@@ -1,0 +1,5 @@
+{
+  "name": "remote-mac-folder-copy",
+  "description": "Parameterized SSH and rsync folder or Skill transfer with checksum verification",
+  "version": "1.0.0"
+}

@@ -27,9 +27,15 @@ A plugin packages a portable Skill so a specific agent can discover, install, an
 
 | Plugin | Version | Description | Commands |
 |--------|---------|-------------|----------|
+| [business-messenger-to-obsidian](plugins/business-messenger-to-obsidian) | `1.0.0` | Evidence-bound Korean handoff history from work-messenger exports | Skill-only (no commands) |
 | [linear-simple](plugins/linear-simple) | `1.1.6` | Linear GraphQL API for issue management | `/linear-simple:setup`, `/linear-simple:get`, `/linear-simple:create` |
 | [git-worktree](plugins/git-worktree) | `1.0.0` | Git worktree protocol for parallel development with isolated workspaces | Skill-only (no commands) |
 | [db-safety](plugins/db-safety) | `1.0.0` | Database safety protocol to prevent accidental data loss | Skill-only (no commands) |
+| [form-validation-patterns](plugins/form-validation-patterns) | `1.0.0` | Framework-neutral web form validation and state-contract review | Skill-only (no commands) |
+| [mac-storage-steward](plugins/mac-storage-steward) | `1.0.0` | Evidence-first Mac storage audit and approval-gated cleanup | Skill-only (no commands) |
+| [macbook-power-profile](plugins/macbook-power-profile) | `1.0.0` | Safe macOS sleep, closed-lid, charge-limit, and battery-health workflows | Skill-only (no commands) |
+| [remote-mac-folder-copy](plugins/remote-mac-folder-copy) | `1.0.0` | SSH folder transfer to a specified Mac with checksum verification | Skill-only (no commands) |
+| [resume-first-page-review](plugins/resume-first-page-review) | `1.0.0` | Evidence-bound first-page resume clarity and target-fit review | Skill-only (no commands) |
 | [toss-frontend-fundamentals](plugins/toss-frontend-fundamentals) | `1.0.0` | Source-backed Toss code-quality review for React and TypeScript | Skill-only (no commands) |
 
 ## Installation
@@ -39,7 +45,7 @@ A plugin packages a portable Skill so a specific agent can discover, install, an
 The following command copies the portable `SKILL.md` files and their references into the user Skill directories for your agents. The installation order is always Codex, Claude Code, Hermes Agent, and OpenClaw. Plugin commands and marketplace features are not included.
 
 ```bash
-for skill in linear-simple db-safety git-worktree toss-frontend-fundamentals; do
+for skill in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   npx skills add https://github.com/byungsker/opengiver-skills \
     --skill "$skill" \
     --agent codex claude-code hermes-agent openclaw \
@@ -70,7 +76,7 @@ The paths above are the shared installation paths currently reported by `npx ski
 
 ```bash
 codex plugin marketplace add byungsker/opengiver-skills --ref main
-for plugin in linear-simple db-safety git-worktree toss-frontend-fundamentals; do
+for plugin in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   codex plugin add "$plugin@opengiver-skills"
 done
 ```
@@ -81,7 +87,7 @@ Start a new Codex session after installation. Unlike a portable Skill, a Codex p
 
 ```bash
 claude plugin marketplace add byungsker/opengiver-skills
-for plugin in linear-simple db-safety git-worktree toss-frontend-fundamentals; do
+for plugin in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   claude plugin install "$plugin@opengiver-skills"
 done
 ```
@@ -93,7 +99,7 @@ Plugins with slash commands must be installed this way. For example, `linear-sim
 The Hermes Agent Skill installer accepts a direct `SKILL.md` URL.
 
 ```bash
-for skill in linear-simple db-safety git-worktree toss-frontend-fundamentals; do
+for skill in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   hermes skills install \
     "https://raw.githubusercontent.com/byungsker/opengiver-skills/main/plugins/$skill/skills/$skill/SKILL.md" \
     --yes
@@ -104,18 +110,21 @@ This is the Hermes Agent native installation path. For Skills with many referenc
 
 ### Method 5: Install a native OpenClaw Skill
 
-OpenClaw installs a local Skill directory whose root contains `SKILL.md`. Because this repository contains multiple Skills, clone it and pass each Skill subdirectory to the installer.
+The current OpenClaw CLI exposes `list`, `check`, and `info` for Skills but does not provide an `install` subcommand. Install a Skill by copying its directory into OpenClaw's managed Skill directory, then verify it with `openclaw skills list`.
 
 ```bash
+REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
-git clone --depth 1 https://github.com/byungsker/opengiver-skills.git "$repo_dir"
-for skill in linear-simple db-safety git-worktree toss-frontend-fundamentals; do
-  openclaw skills install "$repo_dir/plugins/$skill/skills/$skill" \
-    --as "$skill" --global
+git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
+for skill in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+  target="$HOME/.openclaw/skills/$skill"
+  mkdir -p "$target"
+  cp -R "$repo_dir/plugins/$skill/skills/$skill/." "$target/"
 done
+openclaw skills list
 ```
 
-`--global` installs to `~/.openclaw/skills`. If your OpenClaw version does not provide `openclaw skills install`, update OpenClaw or place the same Skill directory under `skills/<skill>` in the active workspace.
+The managed global directory is `~/.openclaw/skills`. To install only in one workspace, copy the same directory to that workspace's `skills/<skill>` instead.
 
 ### Optional: Claude Code UI or repository clone
 
@@ -197,6 +206,54 @@ Database Safety Protocol to prevent accidental data loss and enforce safe migrat
 
 ---
 
+### business-messenger-to-obsidian
+
+Turns work-messenger exports into evidence-bound Korean handoff history in a user-selected Obsidian vault. It preserves source cutoffs, separates direct messages from mentions, and keeps uncertain current state explicit.
+
+[View full documentation →](plugins/business-messenger-to-obsidian/README.md)
+
+---
+
+### form-validation-patterns
+
+Reviews or builds web forms against the existing design system, state contract, API boundary, accessibility behavior, retry behavior, and stale-response protection.
+
+[View full documentation →](plugins/form-validation-patterns/README.md)
+
+---
+
+### mac-storage-steward
+
+Audits Mac storage with read-only evidence, classifies cleanup risk, requires explicit selection for destructive actions, and verifies the result.
+
+[View full documentation →](plugins/mac-storage-steward/README.md)
+
+---
+
+### macbook-power-profile
+
+Separates macOS sleep prevention, closed-lid operation, native charge limits, and battery-health reporting into evidence-backed workflows.
+
+[View full documentation →](plugins/macbook-power-profile/README.md)
+
+---
+
+### remote-mac-folder-copy
+
+Copies a user-selected folder to a specified remote Mac over SSH, preserves the source, and verifies the result with a checksum-based dry run.
+
+[View full documentation →](plugins/remote-mac-folder-copy/README.md)
+
+---
+
+### resume-first-page-review
+
+Reviews a resume's first page or first screen for opening clarity, target-role fit, evidence density, and fixed-layout readability.
+
+[View full documentation →](plugins/resume-first-page-review/README.md)
+
+---
+
 ### toss-frontend-fundamentals
 
 Reviews React and TypeScript frontend code using the source-backed Toss Frontend Fundamentals principles: readability, predictability, cohesion, and coupling. The package includes the mapped source documents instead of only a summary, so the agent can read the relevant original document before reporting a finding.
@@ -228,6 +285,30 @@ opengiver-skills/
 │   │   ├── skills/
 │   │   └── README.md
 │   ├── db-safety/                # Database safety protocol plugin
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── business-messenger-to-obsidian/ # Work-messenger handoff history
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── form-validation-patterns/  # Web form validation and state review
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── mac-storage-steward/       # Evidence-first Mac storage stewardship
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── macbook-power-profile/     # macOS power and battery workflows
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── remote-mac-folder-copy/    # Verified SSH folder transfer
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── resume-first-page-review/   # Evidence-bound resume first-page review
 │   │   ├── .claude-plugin/
 │   │   ├── skills/
 │   │   └── README.md
