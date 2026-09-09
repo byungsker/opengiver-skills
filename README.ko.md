@@ -29,7 +29,7 @@ Claude Code의 내장 플러그인 시스템으로 설치:
 
 ```bash
 # 마켓플레이스 추가
-/plugin marketplace add lbo728/opengiver-skills
+/plugin marketplace add byungsker/opengiver-skills
 
 # 특정 플러그인 설치
 /plugin install linear-simple@opengiver-skills
@@ -44,7 +44,7 @@ Claude Code의 내장 플러그인 시스템으로 설치:
 # 플러그인 매니저 열기
 /plugin
 
-# "Marketplaces" 탭 → Add → 입력: lbo728/opengiver-skills
+# "Marketplaces" 탭 → Add → 입력: byungsker/opengiver-skills
 # "Discover" 탭으로 이동 → 플러그인 찾기 → Install
 ```
 
@@ -53,7 +53,7 @@ Claude Code의 내장 플러그인 시스템으로 설치:
 전체 레포를 클론하여 plugins 폴더 복사:
 
 ```bash
-git clone https://github.com/lbo728/opengiver-skills.git
+git clone https://github.com/byungsker/opengiver-skills.git
 cp -r opengiver-skills/plugins/* ~/.claude/plugins/
 ```
 
@@ -179,7 +179,7 @@ Daily Git 브랜치를 자동 분석하여 Notion 데이터베이스에 블로�
 Claude Code는 마켓플레이스에서 설치할 수 있습니다. Codex·Claude Code·Hermes·OpenClaw는 공통 설치 스크립트를 사용할 수 있습니다.
 
 ```bash
-git clone https://github.com/lbo728/opengiver-skills.git
+git clone https://github.com/byungsker/opengiver-skills.git
 cd opengiver-skills
 ./plugins/toss-frontend-fundamentals/install.sh --target all
 ```

@@ -23,7 +23,7 @@ Toss Frontend Fundamentals는 다음 네 가지 코드 품질 관점으로 프�
 ### Claude Code 마켓플레이스
 
 ```text
-/plugin marketplace add lbo728/opengiver-skills
+/plugin marketplace add byungsker/opengiver-skills
 /plugin install toss-frontend-fundamentals@opengiver-skills
 ```
 
@@ -32,7 +32,7 @@ Toss Frontend Fundamentals는 다음 네 가지 코드 품질 관점으로 프�
 저장소를 클론한 뒤 이식 가능한 설치 스크립트를 실행합니다.
 
 ```bash
-git clone https://github.com/lbo728/opengiver-skills.git
+git clone https://github.com/byungsker/opengiver-skills.git
 cd opengiver-skills
 ./plugins/toss-frontend-fundamentals/install.sh --target codex
 ```

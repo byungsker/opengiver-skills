@@ -29,7 +29,7 @@ Install via Claude Code's built-in plugin system:
 
 ```bash
 # Add the marketplace
-/plugin marketplace add lbo728/opengiver-skills
+/plugin marketplace add byungsker/opengiver-skills
 
 # Install specific plugin
 /plugin install linear-simple@opengiver-skills
@@ -44,7 +44,7 @@ Install via Claude Code's built-in plugin system:
 # Open plugin manager
 /plugin
 
-# Navigate to "Marketplaces" tab → Add → Enter: lbo728/opengiver-skills
+# Navigate to "Marketplaces" tab → Add → Enter: byungsker/opengiver-skills
 # Then go to "Discover" tab → Find plugin → Install
 ```
 
@@ -53,7 +53,7 @@ Install via Claude Code's built-in plugin system:
 Clone the entire repo and copy the plugins folder:
 
 ```bash
-git clone https://github.com/lbo728/opengiver-skills.git
+git clone https://github.com/byungsker/opengiver-skills.git
 cp -r opengiver-skills/plugins/* ~/.claude/plugins/
 ```
 
@@ -179,7 +179,7 @@ Reviews React and TypeScript frontend code using the source-backed Toss Frontend
 Claude Code can install it from the marketplace. Codex, Claude Code, Hermes, and OpenClaw can use the shared installer:
 
 ```bash
-git clone https://github.com/lbo728/opengiver-skills.git
+git clone https://github.com/byungsker/opengiver-skills.git
 cd opengiver-skills
 ./plugins/toss-frontend-fundamentals/install.sh --target all
 ```

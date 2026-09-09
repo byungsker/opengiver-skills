@@ -23,7 +23,7 @@ The package includes the code-quality source snapshot, a routing manifest, a rev
 ### Claude Code marketplace
 
 ```text
-/plugin marketplace add lbo728/opengiver-skills
+/plugin marketplace add byungsker/opengiver-skills
 /plugin install toss-frontend-fundamentals@opengiver-skills
 ```
 
@@ -32,7 +32,7 @@ The package includes the code-quality source snapshot, a routing manifest, a rev
 Clone the repository and run the portable installer:
 
 ```bash
-git clone https://github.com/lbo728/opengiver-skills.git
+git clone https://github.com/byungsker/opengiver-skills.git
 cd opengiver-skills
 ./plugins/toss-frontend-fundamentals/install.sh --target codex
 ```
