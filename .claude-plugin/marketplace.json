@@ -37,6 +37,12 @@
       "source": "./plugins/product-launch-strategist",
       "description": "Product launch strategy advisor for indie developers - competitive analysis, pricing, cost structure, and go-to-market planning",
       "version": "1.0.0"
+    },
+    {
+      "name": "toss-frontend-fundamentals",
+      "source": "./plugins/toss-frontend-fundamentals",
+      "description": "Source-backed Toss Frontend Fundamentals code-quality review for React and TypeScript frontend code",
+      "version": "1.0.0"
     }
   ]
 }

@@ -19,6 +19,7 @@ Claude Code를 위한 생산성 플러그인 모음. 프로젝트 관리, 콘텐
 | [product-launch-strategist](plugins/product-launch-strategist) | 인디 개발자를 위한 제품 출시 전략 어드바이저 | `/product-launch-strategist:analyze`, `:pricing`, `:risk` |
 | [git-worktree](plugins/git-worktree) | 격리된 작업 공간으로 안전한 병렬 개발을 위한 Git 워크트리 프로토콜 | 스킬 전용 (명령어 없음) |
 | [db-safety](plugins/db-safety) | 실수로 인한 데이터 손실을 방지하는 데이터베이스 안전 프로토콜 | 스킬 전용 (명령어 없음) |
+| [toss-frontend-fundamentals](plugins/toss-frontend-fundamentals) | React·TypeScript 코드를 Toss 원문 근거로 검토하는 Skill | 스킬 전용 (명령어 없음) |
 
 ## 설치
 
@@ -34,6 +35,7 @@ Claude Code의 내장 플러그인 시스템으로 설치:
 /plugin install linear-simple@opengiver-skills
 /plugin install blog-material-gen@opengiver-skills
 /plugin install product-launch-strategist@opengiver-skills
+/plugin install toss-frontend-fundamentals@opengiver-skills
 ```
 
 ### 방법 2: UI로 설치
@@ -168,6 +170,22 @@ Daily Git 브랜치를 자동 분석하여 Notion 데이터베이스에 블로�
 
 [전체 문서 보기 →](plugins/db-safety/README.ko.md)
 
+---
+
+### toss-frontend-fundamentals
+
+가독성, 예측 가능성, 응집도, 결합도 기준으로 React·TypeScript 프론트엔드 코드를 검토합니다. 요약만 제공하는 것이 아니라 대응되는 Toss 원문 문서를 함께 포함하므로, finding을 만들기 전에 관련 원문을 실제로 읽을 수 있습니다.
+
+Claude Code는 마켓플레이스에서 설치할 수 있습니다. Codex·Claude Code·Hermes·OpenClaw는 공통 설치 스크립트를 사용할 수 있습니다.
+
+```bash
+git clone https://github.com/lbo728/opengiver-skills.git
+cd opengiver-skills
+./plugins/toss-frontend-fundamentals/install.sh --target all
+```
+
+한 에이전트에만 설치하려면 `--target codex`, `--target claude`, `--target hermes`, `--target openclaw` 중 하나를 사용합니다. 설치 경로 변경과 기존 설치 백업 방식은 [플러그인 README](plugins/toss-frontend-fundamentals/README.ko.md)를 참고하세요.
+
 ## 저장소 구조
 
 ```
@@ -195,8 +213,13 @@ opengiver-skills/
 │   │   ├── .claude-plugin/
 │   │   ├── skills/
 │   │   └── README.md
-│   └── db-safety/                # 데이터베이스 안전 프로토콜 플러그인
+│   ├── db-safety/                # 데이터베이스 안전 프로토콜 플러그인
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   └── toss-frontend-fundamentals/ # Toss 원문 기반 프론트엔드 코드 품질 검토
 │       ├── .claude-plugin/
+│       ├── install.sh
 │       ├── skills/
 │       └── README.md
 ├── README.md

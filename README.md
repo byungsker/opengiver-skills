@@ -19,6 +19,7 @@ Plugins are specialized tools that extend Claude Code's capabilities. Each plugi
 | [product-launch-strategist](plugins/product-launch-strategist) | Product launch strategy advisor for indie developers | `/product-launch-strategist:analyze`, `:pricing`, `:risk` |
 | [git-worktree](plugins/git-worktree) | Git worktree protocol for parallel development with isolated workspaces | Skill-only (no commands) |
 | [db-safety](plugins/db-safety) | Database safety protocol to prevent accidental data loss | Skill-only (no commands) |
+| [toss-frontend-fundamentals](plugins/toss-frontend-fundamentals) | Source-backed Toss code-quality review for React and TypeScript | Skill-only (no commands) |
 
 ## Installation
 
@@ -34,6 +35,7 @@ Install via Claude Code's built-in plugin system:
 /plugin install linear-simple@opengiver-skills
 /plugin install blog-material-gen@opengiver-skills
 /plugin install product-launch-strategist@opengiver-skills
+/plugin install toss-frontend-fundamentals@opengiver-skills
 ```
 
 ### Option 2: Interactive UI
@@ -168,6 +170,22 @@ Database Safety Protocol to prevent accidental data loss and enforce safe migrat
 
 [View full documentation →](plugins/db-safety/README.md)
 
+---
+
+### toss-frontend-fundamentals
+
+Reviews React and TypeScript frontend code using the source-backed Toss Frontend Fundamentals principles: readability, predictability, cohesion, and coupling. The package includes the mapped source documents instead of only a summary, so the agent can read the relevant original document before reporting a finding.
+
+Claude Code can install it from the marketplace. Codex, Claude Code, Hermes, and OpenClaw can use the shared installer:
+
+```bash
+git clone https://github.com/lbo728/opengiver-skills.git
+cd opengiver-skills
+./plugins/toss-frontend-fundamentals/install.sh --target all
+```
+
+Use `--target codex`, `--target claude`, `--target hermes`, or `--target openclaw` for a single agent. See the [plugin README](plugins/toss-frontend-fundamentals/README.md) for destination overrides and backup behavior.
+
 ## Repository Structure
 
 ```
@@ -195,8 +213,13 @@ opengiver-skills/
 │   │   ├── .claude-plugin/
 │   │   ├── skills/
 │   │   └── README.md
-│   └── db-safety/                # Database safety protocol plugin
+│   ├── db-safety/                # Database safety protocol plugin
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   └── toss-frontend-fundamentals/ # Toss source-backed frontend code-quality review
 │       ├── .claude-plugin/
+│       ├── install.sh
 │       ├── skills/
 │       └── README.md
 ├── README.md
