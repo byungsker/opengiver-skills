@@ -27,6 +27,24 @@ The package includes the code-quality source snapshot, a routing manifest, a rev
 /plugin install toss-frontend-fundamentals@opengiver-skills
 ```
 
+### 네 런타임 한 번에 설치
+
+`skills` CLI를 사용하면 원문 근거 레퍼런스를 포함한 TFF Skill 전체를 Claude Code·Codex·Hermes Agent·OpenClaw에 한 번에 복사할 수 있습니다.
+
+```bash
+npx skills add https://github.com/byungsker/opengiver-skills --skill toss-frontend-fundamentals --agent claude-code codex hermes-agent openclaw --global --copy --yes --full-depth
+```
+
+한 런타임에만 설치하려면 `--agent` 값을 `claude-code`, `codex`, `hermes-agent`, `openclaw` 중 하나로 바꾸세요.
+
+### Claude Code CLI 네이티브 설치
+
+Claude Code 자체의 플러그인 CLI를 사용하려면 다음 한 줄을 실행합니다.
+
+```bash
+claude plugin marketplace add byungsker/opengiver-skills && claude plugin install toss-frontend-fundamentals@opengiver-skills
+```
+
 ### Codex CLI 네이티브 설치
 
 Codex CLI에서는 다음 명령으로 Git 마켓플레이스를 등록하고 플러그인을 설치할 수 있습니다.

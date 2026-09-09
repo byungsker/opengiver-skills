@@ -178,6 +178,21 @@ Daily Git 브랜치를 자동 분석하여 Notion 데이터베이스에 블로�
 
 Claude Code는 마켓플레이스에서 설치할 수 있습니다. Codex·Claude Code·Hermes·OpenClaw는 공통 설치 스크립트를 사용할 수 있습니다.
 
+네 런타임에 한 번에 설치하려면 `skills` CLI를 사용할 수 있습니다. `--full-depth`는 저장소의 다른 루트 Skill과 구분해 TFF Skill만 선택하기 위해 필요합니다.
+
+```bash
+npx skills add https://github.com/byungsker/opengiver-skills --skill toss-frontend-fundamentals --agent claude-code codex hermes-agent openclaw --global --copy --yes --full-depth
+```
+
+특정 런타임 하나만 설치하려면 `--agent` 값만 바꿉니다.
+
+```bash
+npx skills add https://github.com/byungsker/opengiver-skills --skill toss-frontend-fundamentals --agent claude-code --global --copy --yes --full-depth
+npx skills add https://github.com/byungsker/opengiver-skills --skill toss-frontend-fundamentals --agent codex --global --copy --yes --full-depth
+npx skills add https://github.com/byungsker/opengiver-skills --skill toss-frontend-fundamentals --agent hermes-agent --global --copy --yes --full-depth
+npx skills add https://github.com/byungsker/opengiver-skills --skill toss-frontend-fundamentals --agent openclaw --global --copy --yes --full-depth
+```
+
 Codex CLI에서는 다음 네이티브 플러그인 명령으로 설치할 수도 있습니다. 이 방식과 아래의 공통 설치 스크립트 중 Codex에는 하나만 선택하세요.
 
 ```bash
