@@ -27,6 +27,15 @@ Toss Frontend Fundamentals는 다음 네 가지 코드 품질 관점으로 프�
 /plugin install toss-frontend-fundamentals@opengiver-skills
 ```
 
+### Codex CLI 네이티브 설치
+
+Codex CLI에서는 다음 명령으로 Git 마켓플레이스를 등록하고 플러그인을 설치할 수 있습니다.
+
+```bash
+codex plugin marketplace add byungsker/opengiver-skills --ref main
+codex plugin add toss-frontend-fundamentals@opengiver-skills
+```
+
 ### Codex·Claude Code·Hermes·OpenClaw 공통 설치
 
 저장소를 클론한 뒤 이식 가능한 설치 스크립트를 실행합니다.

@@ -27,6 +27,15 @@ The package includes the code-quality source snapshot, a routing manifest, a rev
 /plugin install toss-frontend-fundamentals@opengiver-skills
 ```
 
+### Codex CLI 네이티브 설치
+
+Codex CLI에서는 다음 명령으로 Git 마켓플레이스를 등록하고 플러그인을 설치할 수 있습니다.
+
+```bash
+codex plugin marketplace add byungsker/opengiver-skills --ref main
+codex plugin add toss-frontend-fundamentals@opengiver-skills
+```
+
 ### Codex, Claude Code, Hermes, or OpenClaw
 
 Clone the repository and run the portable installer:

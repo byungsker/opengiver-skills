@@ -178,6 +178,13 @@ Reviews React and TypeScript frontend code using the source-backed Toss Frontend
 
 Claude Code can install it from the marketplace. Codex, Claude Code, Hermes, and OpenClaw can use the shared installer:
 
+Codex CLI에서는 다음 네이티브 플러그인 명령으로 설치할 수도 있습니다. 이 방식과 아래의 공통 설치 스크립트 중 Codex에는 하나만 선택하십시오.
+
+```bash
+codex plugin marketplace add byungsker/opengiver-skills --ref main
+codex plugin add toss-frontend-fundamentals@opengiver-skills
+```
+
 ```bash
 git clone https://github.com/byungsker/opengiver-skills.git
 cd opengiver-skills
