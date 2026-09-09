@@ -1,5 +1,0 @@
-{
-  "name": "blog-material-gen",
-  "description": "Auto-generate blog material to Notion with AI drafts (OpenAI/Anthropic/Google Gemini). Supports PR/commit links and Slack notifications.",
-  "version": "2.0.1"
-}

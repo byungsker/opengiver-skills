@@ -24,32 +24,66 @@ Claude Code용 안전한 데이터베이스 작업 플러그인. 필수 승인 �
 
 ## 설치
 
-### 방법 1: 마켓플레이스 (권장)
+### 방법 1: 네 에이전트 공용 Skill 설치 (`npx skills`)
+
+portable `SKILL.md`를 네 에이전트에 복사합니다. 설치 대상 순서는 Codex, Claude Code, Hermes Agent, OpenClaw입니다.
 
 ```bash
-# 1단계: 마켓플레이스 추가
-/plugin marketplace add byungsker/opengiver-skills
-
-# 2단계: 플러그인 설치
-/plugin install db-safety@opengiver-skills
-
-# 3단계: Claude Code 재시작
+npx skills add https://github.com/byungsker/opengiver-skills \
+  --skill db-safety \
+  --agent codex claude-code hermes-agent openclaw \
+  --global --copy --yes --full-depth
 ```
 
-### 방법 2: UI로 설치
+기본 설치 경로:
+
+| 에이전트 | 경로 |
+|---|---|
+| Codex | `~/.agents/skills/db-safety` |
+| Claude Code | `~/.claude/skills/db-safety` |
+| Hermes Agent | `~/.hermes/skills/db-safety` |
+| OpenClaw | `~/.openclaw/skills/db-safety` |
+
+`--agent`에는 하나의 값만 지정할 수도 있습니다. 공용 설치는 Skill 본문을 설치하며, Claude Code 네이티브 플러그인은 마켓플레이스 설치에서 제공합니다.
+
+### 방법 2: Codex 네이티브 플러그인 설치
 
 ```bash
-# 플러그인 매니저 열기
-/plugin
-
-# "Marketplaces" 탭 → Add → 입력: byungsker/opengiver-skills
-# "Discover" 탭으로 이동 → "db-safety" 찾기 → Install
+codex plugin marketplace add byungsker/opengiver-skills --ref main
+codex plugin add db-safety@opengiver-skills
 ```
 
-### 방법 3: 수동 설치
+### 방법 3: Claude Code 네이티브 플러그인 설치
 
 ```bash
-# 저장소 클론 후 스킬 디렉토리로 복사
+claude plugin marketplace add byungsker/opengiver-skills
+claude plugin install db-safety@opengiver-skills
+```
+
+### 방법 4: Hermes Agent 네이티브 Skill 설치
+
+```bash
+hermes skills install \
+  https://raw.githubusercontent.com/byungsker/opengiver-skills/main/plugins/db-safety/skills/db-safety/SKILL.md \
+  --yes
+```
+
+### 방법 5: OpenClaw 네이티브 Skill 설치
+
+```bash
+repo_dir="$(mktemp -d)/opengiver-skills"
+git clone --depth 1 https://github.com/byungsker/opengiver-skills.git "$repo_dir"
+openclaw skills install "$repo_dir/plugins/db-safety/skills/db-safety" \
+  --as db-safety --global
+```
+
+`--global`은 `~/.openclaw/skills/db-safety`에 설치합니다. `openclaw skills install`이 없는 구버전은 OpenClaw를 먼저 업데이트하거나 활성 workspace의 `skills/db-safety`에 해당 디렉터리를 배치하세요.
+
+### 선택 사항: Claude Code UI 또는 저장소 클론
+
+Claude Code에서 `/plugin`을 실행한 뒤 마켓플레이스에 `byungsker/opengiver-skills`를 추가하고 `db-safety`를 설치할 수도 있습니다. 전체 플러그인 디렉터리를 직접 복사하려면 다음을 사용합니다.
+
+```bash
 git clone https://github.com/byungsker/opengiver-skills.git
 cp -r opengiver-skills/plugins/db-safety ~/.claude/plugins/
 ```

@@ -24,35 +24,56 @@ A Claude Code plugin for Linear GraphQL API. Direct curl calls without MCP, impr
 
 ## Installation
 
-### Method 1: Marketplace (Recommended)
+### 방법 1: 네 에이전트 공용 Skill 설치 (`npx skills`)
+
+portable `SKILL.md`를 Codex, Claude Code, Hermes Agent, OpenClaw 순서로 설치합니다.
 
 ```bash
-# Step 1: Add the marketplace
-/plugin marketplace add byungsker/opengiver-skills
-
-# Step 2: Install the plugin
-/plugin install linear-simple@opengiver-skills
-
-# Step 3: Restart Claude Code
+npx skills add https://github.com/byungsker/opengiver-skills \
+  --skill linear-simple \
+  --agent codex claude-code hermes-agent openclaw \
+  --global --copy --yes --full-depth
 ```
 
-### Method 2: Interactive UI
+| 에이전트 | 기본 경로 |
+|---|---|
+| Codex | `~/.agents/skills/linear-simple` |
+| Claude Code | `~/.claude/skills/linear-simple` |
+| Hermes Agent | `~/.hermes/skills/linear-simple` |
+| OpenClaw | `~/.openclaw/skills/linear-simple` |
+
+### 방법 2: Codex 네이티브 플러그인 설치
 
 ```bash
-# Open plugin manager
-/plugin
-
-# Navigate to "Marketplaces" tab → Add → Enter: byungsker/opengiver-skills
-# Then go to "Discover" tab → Find "linear-simple" → Install
+codex plugin marketplace add byungsker/opengiver-skills --ref main
+codex plugin add linear-simple@opengiver-skills
 ```
 
-### Method 3: Manual Installation
+### 방법 3: Claude Code 네이티브 플러그인 설치
 
 ```bash
-# Clone and copy to your skills directory
-git clone https://github.com/byungsker/opengiver-skills.git
-cp -r opengiver-skills/plugins/linear-simple ~/.claude/plugins/
+claude plugin marketplace add byungsker/opengiver-skills
+claude plugin install linear-simple@opengiver-skills
 ```
+
+### 방법 4: Hermes Agent 네이티브 Skill 설치
+
+```bash
+hermes skills install \
+  https://raw.githubusercontent.com/byungsker/opengiver-skills/main/plugins/linear-simple/skills/linear-simple/SKILL.md \
+  --yes
+```
+
+### 방법 5: OpenClaw 네이티브 Skill 설치
+
+```bash
+repo_dir="$(mktemp -d)/opengiver-skills"
+git clone --depth 1 https://github.com/byungsker/opengiver-skills.git "$repo_dir"
+openclaw skills install "$repo_dir/plugins/linear-simple/skills/linear-simple" \
+  --as linear-simple --global
+```
+
+`openclaw skills install`이 없는 구버전은 OpenClaw를 업데이트하거나 활성 workspace의 `skills/linear-simple`에 해당 디렉터리를 배치하세요.
 
 ## Setup (Required)
 
