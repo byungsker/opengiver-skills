@@ -30,7 +30,7 @@ A Claude Code skill for Git Worktree Protocol. Enables safe parallel development
 
 ```bash
 # Step 1: Add the marketplace
-/plugin marketplace add lbo728/opengiver-skills
+/plugin marketplace add byungsker/opengiver-skills
 
 # Step 2: Install the plugin
 /plugin install git-worktree@opengiver-skills
@@ -44,7 +44,7 @@ A Claude Code skill for Git Worktree Protocol. Enables safe parallel development
 # Open plugin manager
 /plugin
 
-# Navigate to "Marketplaces" tab → Add → Enter: lbo728/opengiver-skills
+# Navigate to "Marketplaces" tab → Add → Enter: byungsker/opengiver-skills
 # Then go to "Discover" tab → Find "git-worktree" → Install
 ```
 
@@ -52,7 +52,7 @@ A Claude Code skill for Git Worktree Protocol. Enables safe parallel development
 
 ```bash
 # Clone and copy to your skills directory
-git clone https://github.com/lbo728/opengiver-skills.git
+git clone https://github.com/byungsker/opengiver-skills.git
 cp -r opengiver-skills/plugins/git-worktree ~/.claude/plugins/
 ```
 

@@ -28,7 +28,7 @@ A Claude Code plugin that provides strategic advice for product launches. Optimi
 
 ```bash
 # Step 1: Add the marketplace
-/plugin marketplace add lbo728/opengiver-skills
+/plugin marketplace add byungsker/opengiver-skills
 
 # Step 2: Install the plugin
 /plugin install product-launch-strategist@opengiver-skills
@@ -42,14 +42,14 @@ A Claude Code plugin that provides strategic advice for product launches. Optimi
 # Open plugin manager
 /plugin
 
-# Navigate to "Marketplaces" tab → Add → Enter: lbo728/opengiver-skills
+# Navigate to "Marketplaces" tab → Add → Enter: byungsker/opengiver-skills
 # Then go to "Discover" tab → Find "product-launch-strategist" → Install
 ```
 
 ### Method 3: Manual Installation
 
 ```bash
-git clone https://github.com/lbo728/opengiver-skills.git
+git clone https://github.com/byungsker/opengiver-skills.git
 cp -r opengiver-skills/plugins/product-launch-strategist ~/.claude/plugins/
 ```
 

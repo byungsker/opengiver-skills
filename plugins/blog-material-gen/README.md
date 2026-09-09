@@ -29,7 +29,7 @@ A Claude Code plugin that automatically analyzes daily Git branches and generate
 
 ```bash
 # Step 1: Add the marketplace
-/plugin marketplace add lbo728/opengiver-skills
+/plugin marketplace add byungsker/opengiver-skills
 
 # Step 2: Install the plugin
 /plugin install blog-material-gen@opengiver-skills
@@ -43,7 +43,7 @@ A Claude Code plugin that automatically analyzes daily Git branches and generate
 # Open plugin manager
 /plugin
 
-# Navigate to "Marketplaces" tab → Add → Enter: lbo728/opengiver-skills
+# Navigate to "Marketplaces" tab → Add → Enter: byungsker/opengiver-skills
 # Then go to "Discover" tab → Find "blog-material-gen" → Install
 ```
 

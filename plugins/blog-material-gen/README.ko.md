@@ -29,7 +29,7 @@ Daily Git 브랜치를 자동 분석하여 Notion 데이터베이스에 블로�
 
 ```bash
 # 1단계: 마켓플레이스 추가
-/plugin marketplace add lbo728/opengiver-skills
+/plugin marketplace add byungsker/opengiver-skills
 
 # 2단계: 플러그인 설치
 /plugin install blog-material-gen@opengiver-skills
@@ -43,7 +43,7 @@ Daily Git 브랜치를 자동 분석하여 Notion 데이터베이스에 블로�
 # 플러그인 매니저 열기
 /plugin
 
-# "Marketplaces" 탭 → Add → 입력: lbo728/opengiver-skills
+# "Marketplaces" 탭 → Add → 입력: byungsker/opengiver-skills
 # "Discover" 탭으로 이동 → "blog-material-gen" 찾기 → Install
 ```
 
