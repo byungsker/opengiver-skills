@@ -1,4 +1,0 @@
-interface:
-  display_name: "Biome·ESLint 일괄 적용"
-  short_description: "저장소 전체에 설정된 import·Tailwind 자동 수정 규칙 적용"
-  default_prompt: "$biome-eslint-ide-config-apply로 이 저장소 전체에 설정된 import와 Tailwind 자동 수정 규칙을 적용해줘."

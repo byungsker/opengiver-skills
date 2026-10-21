@@ -1,3 +1,4 @@
 interface:
   display_name: "Biome·ESLint IDE 설정"
-  short_description: "Biome·ESLint와 Zed·VS Code 저장 자동화를 프로젝트에 맞게 구성"
+  short_description: "Biome·ESLint·IDE 저장 설정과 전체 적용 명령"
+  default_prompt: "$biome-eslint-ide-config-skill로 이 프로젝트의 Biome, ESLint Tailwind 규칙과 저장 자동화를 설정해줘."

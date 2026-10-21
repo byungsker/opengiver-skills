@@ -27,8 +27,7 @@ Opengiver는 좋은 것이 그것을 발견한 사람에게서 멈추면 안 된
 
 | 플러그인 | 버전 | 설명 | 명령어 |
 |----------|------|------|--------|
-| [biome-eslint-ide-config-apply](plugins/biome-eslint-ide-config-apply) | `1.0.0` | 설정된 Biome·ESLint 자동 수정 규칙을 대상 소스 전체에 적용 | Skill 전용 (명령어 없음) |
-| [biome-eslint-ide-config-skill](plugins/biome-eslint-ide-config-skill) | `1.0.0` | Biome import, ESLint Tailwind 규칙, 편집기 저장 동작을 설정 | Skill 전용 (명령어 없음) |
+| [biome-eslint-ide-config-skill](plugins/biome-eslint-ide-config-skill) | `1.1.0` | Biome import·ESLint Tailwind 규칙과 편집기 저장 설정 및 전체 적용 | `/biome-eslint-ide-config-skill:apply` |
 | [business-messenger-to-obsidian](plugins/business-messenger-to-obsidian) | `1.0.0` | 업무 메신저 export를 근거 중심의 한글 인수인계 기록으로 정리 | Skill 전용 (명령어 없음) |
 | [linear-simple](plugins/linear-simple) | `1.1.6` | 이슈 관리를 위한 Linear GraphQL API | `/linear-simple:setup`, `/linear-simple:get`, `/linear-simple:create` |
 | [git-worktree](plugins/git-worktree) | `1.0.0` | 격리된 작업 공간으로 안전한 병렬 개발을 위한 Git 워크트리 프로토콜 | Skill 전용 (명령어 없음) |
@@ -47,7 +46,7 @@ Opengiver는 좋은 것이 그것을 발견한 사람에게서 멈추면 안 된
 아래 명령은 이식 가능한 `SKILL.md`와 연결된 참조 파일을 네 에이전트의 사용자 Skill 디렉터리에 복사합니다. 설치 대상 순서는 항상 Codex, Claude Code, Hermes Agent, OpenClaw입니다. 플러그인 명령이나 마켓플레이스 기능은 포함되지 않습니다.
 
 ```bash
-for skill in biome-eslint-ide-config-apply biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   npx skills add https://github.com/byungsker/opengiver-skills \
     --skill "$skill" \
     --agent codex claude-code hermes-agent openclaw \
@@ -78,7 +77,7 @@ npx skills add https://github.com/byungsker/opengiver-skills \
 
 ```bash
 codex plugin marketplace add byungsker/opengiver-skills --ref main
-for plugin in biome-eslint-ide-config-apply biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for plugin in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   codex plugin add "$plugin@opengiver-skills"
 done
 ```
@@ -89,7 +88,7 @@ done
 
 ```bash
 claude plugin marketplace add byungsker/opengiver-skills
-for plugin in biome-eslint-ide-config-apply biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for plugin in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   claude plugin install "$plugin@opengiver-skills"
 done
 ```
@@ -101,7 +100,7 @@ done
 Hermes Agent의 Skill 설치 명령은 `SKILL.md` URL을 직접 받습니다.
 
 ```bash
-for skill in biome-eslint-ide-config-apply biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   hermes skills install \
     "https://raw.githubusercontent.com/byungsker/opengiver-skills/main/plugins/$skill/skills/$skill/SKILL.md" \
     --yes
@@ -118,7 +117,7 @@ done
 REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
 git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
-for skill in biome-eslint-ide-config-apply biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   target="$HOME/.openclaw/skills/$skill"
   mkdir -p "$target"
   cp -R "$repo_dir/plugins/$skill/skills/$skill/." "$target/"
@@ -139,17 +138,9 @@ cp -r opengiver-skills/plugins/* ~/.claude/plugins/
 
 ## 플러그인 상세
 
-### biome-eslint-ide-config-apply
-
-Biome·ESLint에 이미 설정된 자동 수정 규칙을 대상 소스 전체에 적용합니다. “저장소 전체에 설정된 Biome·ESLint 자동 수정 규칙을 적용해”, “프로젝트 전체 린트·포맷 수정을 실행해” 같은 자연어로 호출할 수 있습니다.
-
-[전체 문서 보기 →](plugins/biome-eslint-ide-config-apply/README.ko.md)
-
----
-
 ### biome-eslint-ide-config-skill
 
-Biome import 그룹, ESLint Tailwind 줄바꿈·표준 클래스, Zed·VS Code 저장 동작을 설정합니다. 설정을 마친 뒤 선택한 규칙을 전체 소스에 적용할지 묻습니다.
+Biome import 그룹, ESLint Tailwind 줄바꿈·표준 클래스, Zed·VS Code 저장 동작을 설정합니다. 대표 파일 검증을 마친 뒤 선택한 규칙을 전체 소스에 적용할지 묻습니다. 프로젝트 설정은 Skill로 실행하고, 네이티브 Claude Code 플러그인 설치 후 전체 적용에는 `/biome-eslint-ide-config-skill:apply`를 사용합니다. 공용 Skill 설치에서는 “저장소 전체에 설정된 Biome·ESLint 자동 수정 규칙을 적용해”라고 요청할 수 있습니다.
 
 [전체 문서 보기 →](plugins/biome-eslint-ide-config-skill/README.ko.md)
 
@@ -293,12 +284,9 @@ opengiver-skills/
 ├── .claude-plugin/
 │   └── marketplace.json          # 마켓플레이스 레지스트리
 ├── plugins/
-│   ├── biome-eslint-ide-config-apply/ # 저장소 전체 자동 수정
-│   │   ├── .claude-plugin/
-│   │   ├── skills/
-│   │   └── README.md
 │   ├── biome-eslint-ide-config-skill/ # Biome·ESLint·편집기 설정
 │   │   ├── .claude-plugin/
+│   │   ├── commands/                # 설정과 저장소 전체 적용 명령
 │   │   ├── skills/
 │   │   └── README.md
 │   ├── linear-simple/            # Linear API 플러그인

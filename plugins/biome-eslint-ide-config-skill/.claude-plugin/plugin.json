@@ -1,5 +1,10 @@
 {
   "name": "biome-eslint-ide-config-skill",
-  "description": "Configure Biome imports, ESLint Tailwind rules, and editor save actions for an existing project",
-  "version": "1.0.0"
+  "description": "Configure Biome imports, ESLint Tailwind rules, and editor save actions; includes a project-wide apply command",
+  "author": {
+    "name": "byungsker",
+    "email": "72309817+byungsker@users.noreply.github.com",
+    "url": "https://github.com/byungsker"
+  },
+  "version": "1.1.0"
 }

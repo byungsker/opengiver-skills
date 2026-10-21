@@ -1,11 +1,11 @@
 ---
 name: biome-eslint-ide-config-skill
-description: 프로젝트별 Biome import 정렬, ESLint Tailwind 클래스 줄바꿈·표준 클래스 검사, Zed·VS Code 저장 자동화를 설정한다. 저장소에서 이 도구들을 구성하거나 규칙을 조정할 때 사용한다.
+description: "프로젝트별 Biome import 정렬, ESLint Tailwind 클래스 줄바꿈·표준 클래스 검사, Zed·VS Code 저장 자동화를 설정한다. 설정된 규칙의 전체 적용을 요청할 때도 사용한다."
 ---
 
 # Biome·ESLint·IDE 저장 설정
 
-프로젝트의 기존 도구 설정을 읽고 Biome import 정렬, ESLint Tailwind CSS 줄바꿈·표준 클래스 검사, Zed·VS Code 저장 시 자동 실행을 구성한다. 설정 파일은 기존 항목을 보존하면서 병합하고, 요청된 저장소 범위만 변경한다.
+프로젝트의 기존 도구 설정을 읽고 Biome import 정렬, ESLint Tailwind CSS 줄바꿈·표준 클래스 검사, Zed·VS Code 저장 시 자동 실행을 구성한다. 설정 파일은 기존 항목을 보존하면서 병합하고, 요청된 저장소 범위만 변경한다. 설정 완료 후 동의하거나 나중에 전체 적용을 자연어로 요청하면 같은 스킬의 일괄 적용 절차를 사용한다.
 
 ## 대상 저장소 확인
 
@@ -70,9 +70,29 @@ Tailwind CSS 버전이 `4.1.15` 이상이면 `better-tailwindcss/enforce-canonic
 
 > 설정을 완료했고 대표 파일 확인을 마쳤습니다. 현재 설정된 import 정렬과 Tailwind 자동 수정 규칙을 전체 대상 파일에 적용할까요?
 
-- 사용자가 적용한다고 답하면 `biome-eslint-ide-config-apply`를 사용하는 에이전트의 Skill 호출 기능으로 이어서 실행한다. 해당 대화의 답변이 적용 승인이므로 다시 묻지 않는다.
+- 사용자가 적용한다고 답하면 아래 `전체 코드 일괄 적용` 절차를 같은 저장소와 대화에서 이어서 실행한다. 해당 대화의 답변이 적용 승인이므로 다시 묻지 않는다.
 - 사용자가 거절하거나 답하지 않으면 전체 파일을 수정하지 않는다. 요청을 기다리는 동안 추가 파일 수정도 하지 않는다.
 - 일부 경로만 원하면 답변에 지정된 범위로 제한한다.
+
+## 전체 코드 일괄 적용
+
+이미 설정된 Biome import 정렬과 ESLint Tailwind 자동 수정 규칙을 대상 소스 전체에 적용한다. 이 절차는 설정을 새로 만들거나 기존 규칙을 임의로 바꾸지 않는다. 전체 적용 명령을 사용자가 실행했거나 초기 설정 후 사용자가 적용을 승인했을 때 시작한다.
+
+1. 저장소 루트와 적용되는 `AGENTS.md`, package manager, Biome·ESLint 버전과 설정, 관련 package script를 확인한다. `git status --short --branch`로 시작 상태를 기록하고 기존 변경을 보존한다.
+2. Biome과 ESLint에서 이 스킬이 구성한 규칙과 파일 범위를 확인한다. 설정되지 않은 도구는 건너뛴다. 두 도구 모두 규칙이 없으면 설정을 만들지 말고 먼저 이 스킬의 설정 절차를 안내한다.
+3. 도구 설정과 ignore 규칙을 적용해 대상 파일을 정한다. `node_modules`, 생성 산출물, vendored 파일, 빌드 결과, 도구가 무시하는 파일은 제외한다. 사용자 변경이 있는 대상 파일도 요청 범위에 포함되므로 시작 상태와 최종 diff에서 구분한다.
+4. 프로젝트 package script의 실제 범위를 확인한 뒤 Biome import 정렬과 설정된 Tailwind 자동 수정 규칙을 적용한다. import 정렬만 실행할 때는 설치된 Biome이 지원하는 옵션을 확인하고 formatter·linter를 끈 뒤 실행한다. 예:
+
+   ```sh
+   biome check --formatter-enabled=false --linter-enabled=false --organize-imports-enabled=true --write .
+   ```
+
+   ESLint는 실제 설정에 등록된 Tailwind 규칙과 대상 glob에 한정한다. 사용자가 요청하지 않은 Biome formatter·linter 또는 다른 ESLint 자동 수정 규칙까지 함께 적용하는 package script는 범위를 좁혀 실행한다.
+5. 두 도구를 순차 실행해도 결과가 되돌려지지 않는지 확인한다. 공통 파일의 formatter 충돌이 있으면 원인을 확인한 뒤 진행한다.
+6. 적용 후 같은 범위를 쓰기 없이 다시 검사하고 `git diff --check`를 실행한다. 자동 수정이 남거나 새 진단이 생기면 반복 실행으로 감추지 말고 원인과 파일을 확인한다.
+7. 최종 diff에서 의도한 import 정렬과 Tailwind class 변경인지 확인한다. 예상치 못한 전체 재포맷, 의미가 불분명한 class 변경, 생성 파일 변경이 있으면 사용자 변경을 보존하며 원인을 확인하고 광범위한 결과를 임의로 되돌리지 않는다.
+
+완료 보고에는 변경 파일 수와 경로, 시작 전부터 dirty였던 파일, 실행한 정확한 명령, 쓰기 없는 재검사 결과를 포함한다. 이 스킬은 파일을 stage, commit, push하지 않는다.
 
 ## 확인 및 완료 보고
 
