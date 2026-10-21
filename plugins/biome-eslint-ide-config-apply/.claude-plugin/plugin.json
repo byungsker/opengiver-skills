@@ -1,0 +1,5 @@
+{
+	"name": "biome-eslint-ide-config-apply",
+	"description": "Apply configured Biome and ESLint autofixes across eligible source files",
+	"version": "1.0.0"
+}

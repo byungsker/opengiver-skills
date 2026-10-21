@@ -9,6 +9,18 @@
   },
   "plugins": [
     {
+      "name": "biome-eslint-ide-config-apply",
+      "source": "./plugins/biome-eslint-ide-config-apply",
+      "description": "Apply configured Biome and ESLint autofixes across eligible source files",
+      "version": "1.0.0"
+    },
+    {
+      "name": "biome-eslint-ide-config-skill",
+      "source": "./plugins/biome-eslint-ide-config-skill",
+      "description": "Configure Biome imports, ESLint Tailwind rules, and editor save actions for an existing project",
+      "version": "1.0.0"
+    },
+    {
       "name": "business-messenger-to-obsidian",
       "source": "./plugins/business-messenger-to-obsidian",
       "description": "Evidence-bound Korean handoff history from work-messenger exports",

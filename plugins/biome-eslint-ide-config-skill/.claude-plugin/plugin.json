@@ -1,0 +1,5 @@
+{
+  "name": "biome-eslint-ide-config-skill",
+  "description": "Configure Biome imports, ESLint Tailwind rules, and editor save actions for an existing project",
+  "version": "1.0.0"
+}

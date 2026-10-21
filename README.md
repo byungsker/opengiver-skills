@@ -27,6 +27,8 @@ A plugin packages a portable Skill so a specific agent can discover, install, an
 
 | Plugin | Version | Description | Commands |
 |--------|---------|-------------|----------|
+| [biome-eslint-ide-config-apply](plugins/biome-eslint-ide-config-apply) | `1.0.0` | Apply configured Biome and ESLint autofixes across eligible source files | Skill-only (no commands) |
+| [biome-eslint-ide-config-skill](plugins/biome-eslint-ide-config-skill) | `1.0.0` | Configure Biome imports, ESLint Tailwind rules, and editor save actions | Skill-only (no commands) |
 | [business-messenger-to-obsidian](plugins/business-messenger-to-obsidian) | `1.0.0` | Evidence-bound Korean handoff history from work-messenger exports | Skill-only (no commands) |
 | [linear-simple](plugins/linear-simple) | `1.1.6` | Linear GraphQL API for issue management | `/linear-simple:setup`, `/linear-simple:get`, `/linear-simple:create` |
 | [git-worktree](plugins/git-worktree) | `1.0.0` | Git worktree protocol for parallel development with isolated workspaces | Skill-only (no commands) |
@@ -45,7 +47,7 @@ A plugin packages a portable Skill so a specific agent can discover, install, an
 The following command copies the portable `SKILL.md` files and their references into the user Skill directories for your agents. The installation order is always Codex, Claude Code, Hermes Agent, and OpenClaw. Plugin commands and marketplace features are not included.
 
 ```bash
-for skill in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-apply biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   npx skills add https://github.com/byungsker/opengiver-skills \
     --skill "$skill" \
     --agent codex claude-code hermes-agent openclaw \
@@ -76,7 +78,7 @@ The paths above are the shared installation paths currently reported by `npx ski
 
 ```bash
 codex plugin marketplace add byungsker/opengiver-skills --ref main
-for plugin in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for plugin in biome-eslint-ide-config-apply biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   codex plugin add "$plugin@opengiver-skills"
 done
 ```
@@ -87,7 +89,7 @@ Start a new Codex session after installation. Unlike a portable Skill, a Codex p
 
 ```bash
 claude plugin marketplace add byungsker/opengiver-skills
-for plugin in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for plugin in biome-eslint-ide-config-apply biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   claude plugin install "$plugin@opengiver-skills"
 done
 ```
@@ -99,7 +101,7 @@ Plugins with slash commands must be installed this way. For example, `linear-sim
 The Hermes Agent Skill installer accepts a direct `SKILL.md` URL.
 
 ```bash
-for skill in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-apply biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   hermes skills install \
     "https://raw.githubusercontent.com/byungsker/opengiver-skills/main/plugins/$skill/skills/$skill/SKILL.md" \
     --yes
@@ -116,7 +118,7 @@ The current OpenClaw CLI exposes `list`, `check`, and `info` for Skills but does
 REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
 git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
-for skill in business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-apply biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   target="$HOME/.openclaw/skills/$skill"
   mkdir -p "$target"
   cp -R "$repo_dir/plugins/$skill/skills/$skill/." "$target/"
@@ -136,6 +138,22 @@ cp -r opengiver-skills/plugins/* ~/.claude/plugins/
 ```
 
 ## Plugin Details
+
+### biome-eslint-ide-config-apply
+
+Applies the autofix rules already enabled in Biome and ESLint across eligible source files. Natural-language triggers include “apply the configured Biome and ESLint autofixes across the whole project” and “run the full-project lint and formatting fixes.”
+
+[View full documentation →](plugins/biome-eslint-ide-config-apply/README.md)
+
+---
+
+### biome-eslint-ide-config-skill
+
+Configures Biome import groups, ESLint Tailwind class wrapping and canonical classes, and Zed or VS Code save actions. After setup, it asks before applying the selected rules across the full source scope.
+
+[View full documentation →](plugins/biome-eslint-ide-config-skill/README.md)
+
+---
 
 ### linear-simple
 
@@ -275,6 +293,14 @@ opengiver-skills/
 ├── .claude-plugin/
 │   └── marketplace.json          # Marketplace registry
 ├── plugins/
+│   ├── biome-eslint-ide-config-apply/ # Project-wide configured autofixes
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
+│   ├── biome-eslint-ide-config-skill/ # Biome, ESLint, and editor setup
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   └── README.md
 │   ├── linear-simple/            # Linear API plugin
 │   │   ├── .claude-plugin/
 │   │   ├── commands/
