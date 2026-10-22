@@ -35,6 +35,7 @@ Opengiver는 좋은 것이 그것을 발견한 사람에게서 멈추면 안 된
 | [form-validation-patterns](plugins/form-validation-patterns) | `1.0.0` | 프레임워크에 종속되지 않은 웹 폼 검증과 상태 계약 검토 | Skill 전용 (명령어 없음) |
 | [mac-storage-steward](plugins/mac-storage-steward) | `1.0.0` | 근거 중심의 Mac 저장 공간 감사와 승인 기반 정리 | Skill 전용 (명령어 없음) |
 | [macbook-power-profile](plugins/macbook-power-profile) | `1.0.0` | macOS 잠자기·뚜껑 닫힘·충전 한도·배터리 건강 흐름 | Skill 전용 (명령어 없음) |
+| [port-manager](plugins/port-manager) | `1.0.0` | Git 워크트리별 로컬 개발 서버 포트 조회와 안전한 종료·교체 | Skill 전용 (명령어 없음) |
 | [remote-mac-folder-copy](plugins/remote-mac-folder-copy) | `1.0.0` | 체크섬 검증을 포함한 지정 Mac SSH 폴더 전송 | Skill 전용 (명령어 없음) |
 | [resume-first-page-review](plugins/resume-first-page-review) | `1.0.0` | 근거 중심의 이력서 첫 페이지 명확성과 직무 적합성 검토 | Skill 전용 (명령어 없음) |
 | [toss-frontend-fundamentals](plugins/toss-frontend-fundamentals) | `1.0.0` | React·TypeScript 코드를 Toss 원문 근거로 검토하는 Skill | Skill 전용 (명령어 없음) |
@@ -46,7 +47,7 @@ Opengiver는 좋은 것이 그것을 발견한 사람에게서 멈추면 안 된
 아래 명령은 이식 가능한 `SKILL.md`와 연결된 참조 파일을 네 에이전트의 사용자 Skill 디렉터리에 복사합니다. 설치 대상 순서는 항상 Codex, Claude Code, Hermes Agent, OpenClaw입니다. 플러그인 명령이나 마켓플레이스 기능은 포함되지 않습니다.
 
 ```bash
-for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile port-manager remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   npx skills add https://github.com/byungsker/opengiver-skills \
     --skill "$skill" \
     --agent codex claude-code hermes-agent openclaw \
@@ -77,7 +78,7 @@ npx skills add https://github.com/byungsker/opengiver-skills \
 
 ```bash
 codex plugin marketplace add byungsker/opengiver-skills --ref main
-for plugin in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for plugin in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile port-manager remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   codex plugin add "$plugin@opengiver-skills"
 done
 ```
@@ -88,7 +89,7 @@ done
 
 ```bash
 claude plugin marketplace add byungsker/opengiver-skills
-for plugin in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for plugin in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile port-manager remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   claude plugin install "$plugin@opengiver-skills"
 done
 ```
@@ -100,7 +101,7 @@ done
 Hermes Agent의 Skill 설치 명령은 `SKILL.md` URL을 직접 받습니다.
 
 ```bash
-for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile port-manager remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   hermes skills install \
     "https://raw.githubusercontent.com/byungsker/opengiver-skills/main/plugins/$skill/skills/$skill/SKILL.md" \
     --yes
@@ -117,7 +118,7 @@ done
 REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
 git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
-for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile port-manager remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   target="$HOME/.openclaw/skills/$skill"
   mkdir -p "$target"
   cp -R "$repo_dir/plugins/$skill/skills/$skill/." "$target/"
@@ -247,6 +248,14 @@ macOS 잠자기 방지, 뚜껑 닫힘 실행, 기본 충전 한도, 배터리 �
 
 ---
 
+### port-manager
+
+로컬 TCP 리스너를 조회해 확인된 개발 서버를 프로젝트·Git 워크트리와 연결합니다. 사용자가 지정한 포트에서 확인된 개발 서버만 정상 종료·교체하며, 분류가 불확실한 프로세스와 시스템 서비스는 보호합니다. Codex에서는 `$port-manager`와 하위 요청 또는 자연어로 사용하며 슬래시 명령을 등록하지 않습니다.
+
+[전체 문서 보기 →](plugins/port-manager/README.ko.md)
+
+---
+
 ### remote-mac-folder-copy
 
 사용자가 지정한 폴더를 SSH로 원격 Mac에 복사하고, 원본을 보존하며, 체크섬 기반 dry-run으로 결과를 검증합니다.
@@ -317,6 +326,11 @@ opengiver-skills/
 │   ├── macbook-power-profile/     # macOS 전원과 배터리 흐름
 │   │   ├── .claude-plugin/
 │   │   ├── skills/
+│   │   └── README.md
+│   ├── port-manager/              # 워크트리별 로컬 개발 서버 포트 관리
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   ├── tests/
 │   │   └── README.md
 │   ├── remote-mac-folder-copy/    # 검증 가능한 SSH 폴더 전송
 │   │   ├── .claude-plugin/

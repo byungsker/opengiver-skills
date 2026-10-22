@@ -35,6 +35,7 @@ A plugin packages a portable Skill so a specific agent can discover, install, an
 | [form-validation-patterns](plugins/form-validation-patterns) | `1.0.0` | Framework-neutral web form validation and state-contract review | Skill-only (no commands) |
 | [mac-storage-steward](plugins/mac-storage-steward) | `1.0.0` | Evidence-first Mac storage audit and approval-gated cleanup | Skill-only (no commands) |
 | [macbook-power-profile](plugins/macbook-power-profile) | `1.0.0` | Safe macOS sleep, closed-lid, charge-limit, and battery-health workflows | Skill-only (no commands) |
+| [port-manager](plugins/port-manager) | `1.0.0` | Safe inspection and guarded management of local development server ports across Git worktrees | Skill-only (no commands) |
 | [remote-mac-folder-copy](plugins/remote-mac-folder-copy) | `1.0.0` | SSH folder transfer to a specified Mac with checksum verification | Skill-only (no commands) |
 | [resume-first-page-review](plugins/resume-first-page-review) | `1.0.0` | Evidence-bound first-page resume clarity and target-fit review | Skill-only (no commands) |
 | [toss-frontend-fundamentals](plugins/toss-frontend-fundamentals) | `1.0.0` | Source-backed Toss code-quality review for React and TypeScript | Skill-only (no commands) |
@@ -46,7 +47,7 @@ A plugin packages a portable Skill so a specific agent can discover, install, an
 The following command copies the portable `SKILL.md` files and their references into the user Skill directories for your agents. The installation order is always Codex, Claude Code, Hermes Agent, and OpenClaw. Plugin commands and marketplace features are not included.
 
 ```bash
-for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile port-manager remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   npx skills add https://github.com/byungsker/opengiver-skills \
     --skill "$skill" \
     --agent codex claude-code hermes-agent openclaw \
@@ -77,7 +78,7 @@ The paths above are the shared installation paths currently reported by `npx ski
 
 ```bash
 codex plugin marketplace add byungsker/opengiver-skills --ref main
-for plugin in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for plugin in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile port-manager remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   codex plugin add "$plugin@opengiver-skills"
 done
 ```
@@ -88,7 +89,7 @@ Start a new Codex session after installation. Unlike a portable Skill, a Codex p
 
 ```bash
 claude plugin marketplace add byungsker/opengiver-skills
-for plugin in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for plugin in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile port-manager remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   claude plugin install "$plugin@opengiver-skills"
 done
 ```
@@ -100,7 +101,7 @@ Plugins with slash commands must be installed this way. For example, `linear-sim
 The Hermes Agent Skill installer accepts a direct `SKILL.md` URL.
 
 ```bash
-for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile port-manager remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   hermes skills install \
     "https://raw.githubusercontent.com/byungsker/opengiver-skills/main/plugins/$skill/skills/$skill/SKILL.md" \
     --yes
@@ -117,7 +118,7 @@ The current OpenClaw CLI exposes `list`, `check`, and `info` for Skills but does
 REMOTE_REPO="${REMOTE_REPO:-https://github.com/byungsker/opengiver-skills}"
 repo_dir="$(mktemp -d)/opengiver-skills"
 git clone --depth 1 "$REMOTE_REPO.git" "$repo_dir"
-for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
+for skill in biome-eslint-ide-config-skill business-messenger-to-obsidian db-safety form-validation-patterns git-worktree linear-simple mac-storage-steward macbook-power-profile port-manager remote-mac-folder-copy resume-first-page-review toss-frontend-fundamentals; do
   target="$HOME/.openclaw/skills/$skill"
   mkdir -p "$target"
   cp -R "$repo_dir/plugins/$skill/skills/$skill/." "$target/"
@@ -247,6 +248,14 @@ Separates macOS sleep prevention, closed-lid operation, native charge limits, an
 
 ---
 
+### port-manager
+
+Inspects local TCP listeners and maps confirmed development servers to projects and Git worktrees. It can gracefully stop or replace only a confirmed server on an explicitly selected port; uncertain processes and system services stay protected.
+
+[View full documentation →](plugins/port-manager/README.md)
+
+---
+
 ### remote-mac-folder-copy
 
 Copies a user-selected folder to a specified remote Mac over SSH, preserves the source, and verifies the result with a checksum-based dry run.
@@ -317,6 +326,11 @@ opengiver-skills/
 │   ├── macbook-power-profile/     # macOS power and battery workflows
 │   │   ├── .claude-plugin/
 │   │   ├── skills/
+│   │   └── README.md
+│   ├── port-manager/              # Worktree-aware local development server port management
+│   │   ├── .claude-plugin/
+│   │   ├── skills/
+│   │   ├── tests/
 │   │   └── README.md
 │   ├── remote-mac-folder-copy/    # Verified SSH folder transfer
 │   │   ├── .claude-plugin/

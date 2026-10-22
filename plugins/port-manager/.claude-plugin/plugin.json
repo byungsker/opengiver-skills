@@ -1,0 +1,5 @@
+{
+  "name": "port-manager",
+  "description": "Safely inspect local development server ports and guardedly stop or replace confirmed dev servers across Git worktrees",
+  "version": "1.0.0"
+}

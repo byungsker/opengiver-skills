@@ -57,6 +57,12 @@
       "version": "1.0.0"
     },
     {
+      "name": "port-manager",
+      "source": "./plugins/port-manager",
+      "description": "Safely inspect local development server ports and guardedly stop or replace confirmed dev servers across Git worktrees",
+      "version": "1.0.0"
+    },
+    {
       "name": "remote-mac-folder-copy",
       "source": "./plugins/remote-mac-folder-copy",
       "description": "SSH folder transfer to a specified Mac with checksum verification",
