@@ -35,7 +35,7 @@ A plugin packages a portable Skill so a specific agent can discover, install, an
 | [form-validation-patterns](plugins/form-validation-patterns) | `1.0.0` | Framework-neutral web form validation and state-contract review | Skill-only (no commands) |
 | [mac-storage-steward](plugins/mac-storage-steward) | `1.0.0` | Evidence-first Mac storage audit and approval-gated cleanup | Skill-only (no commands) |
 | [macbook-power-profile](plugins/macbook-power-profile) | `1.0.0` | Safe macOS sleep, closed-lid, charge-limit, and battery-health workflows | Skill-only (no commands) |
-| [port-manager](plugins/port-manager) | `1.0.0` | Safe inspection and guarded management of local development server ports across Git worktrees | Skill-only (no commands) |
+| [port-manager](plugins/port-manager) | `1.1.0` | Safe local dev-server port management with explicit clean linked-worktree removal | Skill-only (no commands) |
 | [remote-mac-folder-copy](plugins/remote-mac-folder-copy) | `1.0.0` | SSH folder transfer to a specified Mac with checksum verification | Skill-only (no commands) |
 | [resume-first-page-review](plugins/resume-first-page-review) | `1.0.0` | Evidence-bound first-page resume clarity and target-fit review | Skill-only (no commands) |
 | [toss-frontend-fundamentals](plugins/toss-frontend-fundamentals) | `1.0.0` | Source-backed Toss code-quality review for React and TypeScript | Skill-only (no commands) |
@@ -250,7 +250,7 @@ Separates macOS sleep prevention, closed-lid operation, native charge limits, an
 
 ### port-manager
 
-Inspects local TCP listeners and maps confirmed development servers to projects and Git worktrees. It can gracefully stop or replace only a confirmed server on an explicitly selected port; uncertain processes and system services stay protected.
+Inspects local TCP listeners and maps confirmed development servers to projects and Git worktrees. The requested user-facing forms are `/port-manger:all`, `/port-manger:detail 5173`, `/port-manger:repo:정확한레포이름`, `/port-manger:delete 5173`, `/port-manger:replace 5173`, and `/port-manger:delete:worktree 5173`; `$port-manager` remains the canonical Skill invocation. These slash-shaped labels express intent and are not registered custom autocomplete commands. Worktree removal is a separate explicit request and proceeds only for a clean, safe linked worktree; uncertain processes and system services stay protected.
 
 [View full documentation →](plugins/port-manager/README.md)
 

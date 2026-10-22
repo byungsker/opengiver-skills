@@ -17,7 +17,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 
 LISTENER_PATTERN = re.compile(r"\bTCP\s+(.+):(\d+)\s+\(LISTEN\)")
@@ -88,6 +88,25 @@ class LaunchPlan:
     framework: str
     args: List[str]
     use_port_environment: bool
+
+
+@dataclass(frozen=True)
+class WorktreeRecord:
+    path: Path
+    head: str
+    branch: Optional[str]
+    locked: bool
+    prunable: bool
+    is_main: bool
+
+
+@dataclass
+class WorktreeRemovalPlan:
+    repository: Path
+    records: Dict[Path, WorktreeRecord]
+    ports_by_worktree: Dict[Path, Set[int]]
+    allowed_listener_pairs: Dict[Path, Set[Tuple[int, int]]]
+    process_by_pid: Dict[int, ProcessInfo]
 
 
 def run_readonly(command: Sequence[str], timeout: float = 3.0) -> subprocess.CompletedProcess:
@@ -498,6 +517,333 @@ def socket_ids_by_port(listeners: Sequence[Listener]) -> Dict[int, Dict[int, Set
     return grouped
 
 
+def _git_text(cwd: Path, *args: str) -> Optional[str]:
+    try:
+        result = run_readonly(["git", "-C", str(cwd), *args], timeout=5.0)
+    except PortManagerError:
+        return None
+    if result.returncode != 0:
+        return None
+    value = result.stdout.strip()
+    return value or None
+
+
+def _absolute_git_path(cwd: Path, value: str) -> Path:
+    path = Path(value)
+    return (path if path.is_absolute() else cwd / path).resolve()
+
+
+def _read_worktrees(repository: Path) -> List[WorktreeRecord]:
+    try:
+        result = run_readonly(
+            ["git", "-C", str(repository), "worktree", "list", "--porcelain", "-z"], timeout=5.0
+        )
+    except PortManagerError as exc:
+        raise PortManagerError("Git 워크트리 등록을 확인하지 못했습니다.") from exc
+    if result.returncode != 0:
+        raise PortManagerError("Git 워크트리 등록을 확인하지 못했습니다.")
+
+    records: List[WorktreeRecord] = []
+    for section in result.stdout.split("\0\0"):
+        if not section:
+            continue
+        fields: Dict[str, str] = {}
+        for item in section.split("\0"):
+            key, separator, value = item.partition(" ")
+            fields[key] = value if separator else ""
+        if not fields.get("worktree") or not fields.get("HEAD"):
+            raise PortManagerError("Git 워크트리 목록 형식을 확인하지 못했습니다.")
+        path = Path(fields["worktree"]).resolve()
+        git_dir_value = _git_text(path, "rev-parse", "--git-dir")
+        common_dir_value = _git_text(path, "rev-parse", "--git-common-dir")
+        if not git_dir_value or not common_dir_value:
+            raise PortManagerError(f"워크트리 Git 등록 경로를 확인하지 못했습니다: {path}")
+        git_dir = _absolute_git_path(path, git_dir_value)
+        common_dir = _absolute_git_path(path, common_dir_value)
+        records.append(WorktreeRecord(
+            path=path,
+            head=fields["HEAD"],
+            branch=fields.get("branch") or None,
+            locked="locked" in fields,
+            prunable="prunable" in fields,
+            is_main=git_dir == common_dir,
+        ))
+    if not records:
+        raise PortManagerError("등록된 Git 워크트리를 찾지 못했습니다.")
+    return records
+
+
+def _path_is_within(path: Path, root: Path) -> bool:
+    try:
+        path.resolve().relative_to(root.resolve())
+        return True
+    except (OSError, ValueError):
+        return False
+
+
+def _worktree_safety_error(record: WorktreeRecord, execution_directory: Path) -> Optional[str]:
+    if record.is_main:
+        return f"기본 워크트리는 제거하지 않습니다: {record.path}"
+    if _path_is_within(execution_directory, record.path):
+        return f"현재 Codex 실행 디렉터리가 포함된 워크트리는 제거하지 않습니다: {record.path}"
+    if record.locked:
+        return f"잠금된 워크트리는 제거하지 않습니다: {record.path}"
+    if record.prunable:
+        return f"prunable 상태의 워크트리는 등록이 모호해 제거하지 않습니다: {record.path}"
+    if not record.path.is_dir():
+        return f"워크트리 경로가 없어 제거하지 않습니다: {record.path}"
+    if not record.branch or not record.branch.startswith("refs/heads/"):
+        return f"브랜치가 연결되지 않은 워크트리는 제거하지 않습니다: {record.path}"
+    branch_head = _git_text(record.path, "rev-parse", "--verify", f"{record.branch}^{{commit}}")
+    current_head = _git_text(record.path, "rev-parse", "--verify", "HEAD^{commit}")
+    if not branch_head or branch_head != record.head or current_head != record.head:
+        return f"워크트리 HEAD와 보존할 브랜치가 일치하지 않아 제거하지 않습니다: {record.path}"
+    try:
+        status = run_readonly([
+            "git", "-C", str(record.path), "status", "--porcelain=v1",
+            "--untracked-files=all", "--ignored=matching",
+        ], timeout=10.0)
+    except PortManagerError:
+        return f"워크트리의 변경·미추적·무시 파일을 확인하지 못해 제거하지 않습니다: {record.path}"
+    if status.returncode != 0:
+        return f"워크트리 상태를 확인하지 못해 제거하지 않습니다: {record.path}"
+    if status.stdout.strip():
+        return f"변경·미추적·무시 파일이 있는 워크트리는 제거하지 않습니다: {record.path}"
+    return None
+
+
+def _record_for_path(records: Sequence[WorktreeRecord], path: Path) -> Optional[WorktreeRecord]:
+    resolved = path.resolve()
+    matches = [record for record in records if record.path == resolved]
+    return matches[0] if len(matches) == 1 else None
+
+
+def _worktree_listener_conflict(
+    record: WorktreeRecord, allowed_pairs: Set[Tuple[int, int]]
+) -> Optional[str]:
+    for listener in list_listeners():
+        if (listener.pid, listener.port) in allowed_pairs:
+            continue
+        info = inspect_process(listener)
+        if not info or not info.cwd:
+            if listener.user == getpass.getuser() or (info and info.is_dev_server):
+                return f"PID {listener.pid} 포트 {listener.port}의 워크트리 소속을 확인할 수 없어 제거를 보류합니다."
+            continue
+        try:
+            process_cwd = Path(info.cwd).resolve()
+        except OSError:
+            return f"PID {listener.pid} 포트 {listener.port}의 작업 경로가 모호해 제거를 보류합니다."
+        if _path_is_within(process_cwd, record.path):
+            return f"선택하지 않은 PID {listener.pid} 포트 {listener.port}가 워크트리에서 실행 중입니다."
+    return None
+
+
+def prepare_worktree_removal(ports: Sequence[int]) -> WorktreeRemovalPlan:
+    selected_ports = set(ports)
+    initial = list_listeners()
+    owner_map = listeners_by_port(initial)
+    records_by_path: Dict[Path, WorktreeRecord] = {}
+    ports_by_worktree: Dict[Path, Set[int]] = {}
+    allowed_pairs: Dict[Path, Set[Tuple[int, int]]] = {}
+    process_by_pid: Dict[int, ProcessInfo] = {}
+    repository_anchor: Optional[Path] = None
+    common_directories: Set[Path] = set()
+    execution_directory = Path.cwd().resolve()
+
+    for port in sorted(selected_ports):
+        owners = owner_map.get(port, set())
+        if not owners:
+            raise PortManagerError(f"포트 {port}에 실행 중인 리스너가 없어 워크트리 소속을 확인할 수 없습니다.")
+        port_records: Set[Path] = set()
+        for listener in (item for item in initial if item.port == port):
+            info = process_by_pid.get(listener.pid)
+            if info is None:
+                info = inspect_process(listener)
+                if info:
+                    process_by_pid[listener.pid] = info
+            if not info or not info.is_dev_server or info.user != getpass.getuser():
+                raise PortManagerError(
+                    f"포트 {port}의 모든 소유자를 현재 계정의 개발 서버로 확인하지 못했습니다. 종료하지 않았습니다."
+                )
+            if not info.cwd or not info.repo:
+                raise PortManagerError(f"PID {listener.pid}의 작업 경로와 저장소를 확인하지 못했습니다.")
+            worktree_path = Path(info.repo.root).resolve()
+            if not _path_is_within(Path(info.cwd), worktree_path):
+                raise PortManagerError(f"PID {listener.pid}의 작업 경로가 저장소 루트와 맞지 않습니다.")
+            current_records = _read_worktrees(worktree_path)
+            record = _record_for_path(current_records, worktree_path)
+            if not record:
+                raise PortManagerError(f"PID {listener.pid}의 경로가 등록된 Git 워크트리가 아닙니다.")
+            safety_error = _worktree_safety_error(record, execution_directory)
+            if safety_error:
+                raise PortManagerError(safety_error)
+            common_value = _git_text(record.path, "rev-parse", "--git-common-dir")
+            if not common_value:
+                raise PortManagerError("Git 공통 디렉터리를 확인하지 못했습니다.")
+            common_directory = _absolute_git_path(record.path, common_value)
+            common_directories.add(common_directory)
+            main_records = [candidate for candidate in current_records if candidate.is_main]
+            if len(main_records) != 1:
+                raise PortManagerError("기본 워크트리를 하나로 확인하지 못해 제거를 보류합니다.")
+            if repository_anchor is None:
+                repository_anchor = main_records[0].path
+            records_by_path[record.path] = record
+            port_records.add(record.path)
+            ports_by_worktree.setdefault(record.path, set()).add(port)
+            allowed_pairs.setdefault(record.path, set()).add((listener.pid, port))
+        if len(port_records) != 1:
+            raise PortManagerError(f"포트 {port} 소유자들이 서로 다른 워크트리에 있어 제거 대상을 특정하지 못했습니다.")
+
+    if len(common_directories) != 1 or not repository_anchor:
+        raise PortManagerError("선택 포트들이 서로 다른 Git 저장소에 있어 한 번에 워크트리를 제거하지 않습니다.")
+    plan = WorktreeRemovalPlan(
+        repository=repository_anchor,
+        records=records_by_path,
+        ports_by_worktree=ports_by_worktree,
+        allowed_listener_pairs=allowed_pairs,
+        process_by_pid=process_by_pid,
+    )
+    for path, record in plan.records.items():
+        conflict = _worktree_listener_conflict(record, plan.allowed_listener_pairs[path])
+        if conflict:
+            raise PortManagerError(conflict)
+    return plan
+
+
+def _recheck_worktree_plan(
+    plan: WorktreeRemovalPlan,
+    path: Path,
+    allowed_pairs: Set[Tuple[int, int]],
+) -> Tuple[bool, str]:
+    expected = plan.records[path]
+    try:
+        current_records = _read_worktrees(plan.repository)
+    except PortManagerError as exc:
+        return False, str(exc)
+    current = _record_for_path(current_records, path)
+    if current != expected:
+        return False, f"워크트리 등록·HEAD·브랜치가 사전 확인 후 바뀌었습니다: {path}"
+    safety_error = _worktree_safety_error(current, Path.cwd().resolve())
+    if safety_error:
+        return False, safety_error
+    conflict = _worktree_listener_conflict(current, allowed_pairs)
+    if conflict:
+        return False, conflict
+    return True, ""
+
+
+def delete_ports_and_worktrees(
+    ports: Sequence[int], force: bool = False, grace_seconds: float = 4.0
+) -> Tuple[bool, List[str]]:
+    """명시된 포트만 종료한 뒤, 모든 안전 조건을 다시 확인하고 연결 워크트리를 제거한다."""
+    plan = prepare_worktree_removal(ports)
+
+    def check_before_signal(pid: int, current: ProcessInfo) -> Tuple[bool, str]:
+        if not current.repo:
+            return False, "프로세스 저장소를 다시 확인하지 못했습니다."
+        path = Path(current.repo.root).resolve()
+        record = plan.records.get(path)
+        if not record or not current.cwd or not _path_is_within(Path(current.cwd), path):
+            return False, "프로세스의 cwd와 워크트리 소속이 사전 확인과 다릅니다."
+        return _recheck_worktree_plan(plan, path, plan.allowed_listener_pairs[path])
+
+    stopped, messages = terminate_ports(
+        ports, force=force, grace_seconds=grace_seconds, pre_signal_check=check_before_signal
+    )
+    if not stopped:
+        for port in sorted(set(ports)):
+            remaining = sorted({item.pid for item in list_listeners() if item.port == port})
+            messages.append(
+                f"포트 {port}: " + (f"현재 리스너 PID {', '.join(map(str, remaining))}" if remaining else "현재 리스너 없음")
+            )
+        messages.append("워크트리 유지: 모든 대상 서버의 종료를 확인하지 못했습니다.")
+        return False, messages
+
+    current_listeners = list_listeners()
+    occupied_ports = sorted(set(ports).intersection(item.port for item in current_listeners))
+    if occupied_ports:
+        messages.append(
+            "워크트리 유지: 종료 후 선택 포트를 다른 프로세스가 점유했습니다 (포트 "
+            + ", ".join(map(str, occupied_ports)) + ")."
+        )
+        return False, messages
+
+    for path, record in plan.records.items():
+        expected_pids = {
+            pid for pid, info in plan.process_by_pid.items()
+            if info.repo and Path(info.repo.root).resolve() == path
+        }
+        still_running = []
+        for pid in sorted(expected_pids):
+            stats = read_ps_stats(pid)
+            if stats and stats["started"] == plan.process_by_pid[pid].started:
+                still_running.append(pid)
+        if still_running:
+            messages.append(
+                f"PID {', '.join(map(str, still_running))}: 포트 해제 후에도 같은 프로세스가 실행 중입니다."
+            )
+            messages.append(f"워크트리 유지: {path}")
+            return False, messages
+
+        ok, reason = _recheck_worktree_plan(plan, path, set())
+        if not ok:
+            messages.append(f"워크트리 삭제 직전 재확인 실패: {reason}")
+            messages.append(f"서버는 종료됐고 워크트리는 유지했습니다: {path}")
+            return False, messages
+
+        def removal_state() -> Optional[str]:
+            try:
+                registered = _record_for_path(_read_worktrees(plan.repository), path) is not None
+            except PortManagerError:
+                return None
+            exists = path.exists()
+            if not registered and not exists:
+                return "removed"
+            if registered and exists:
+                return "retained"
+            return "inconsistent"
+
+        def report_removed() -> bool:
+            branch_head = _git_text(plan.repository, "rev-parse", "--verify", f"{record.branch}^{{commit}}")
+            if branch_head != record.head:
+                messages.append(f"워크트리는 제거됐지만 브랜치 보존 검증에 실패했습니다: {path} ({record.branch})")
+                return False
+            messages.append(f"워크트리 제거 완료, 브랜치 보존 확인: {path} ({record.branch})")
+            return True
+
+        try:
+            result = subprocess.run(
+                ["git", "-C", str(plan.repository), "worktree", "remove", str(path)],
+                capture_output=True, text=True, check=False, timeout=15.0,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            state = removal_state()
+            if state == "removed":
+                report_removed()
+                messages.append("git worktree remove 결과가 시간 초과 뒤 확인됐습니다.")
+            elif state == "retained":
+                messages.append(f"서버는 종료됐고 워크트리는 유지했습니다: {path} (git worktree remove 실행 실패)")
+            else:
+                messages.append(f"서버는 종료됐습니다. 워크트리 제거 결과는 확인할 수 없습니다: {path}")
+            return False, messages
+        if result.returncode != 0:
+            state = removal_state()
+            if state == "removed":
+                report_removed()
+                messages.append("Git 명령은 실패를 반환했지만 실제 제거는 확인했습니다.")
+            elif state == "retained":
+                messages.append(f"서버는 종료됐고 워크트리는 유지했습니다: {path} (Git이 일반 제거를 거부했습니다)")
+            else:
+                messages.append(f"서버는 종료됐습니다. 워크트리 제거 결과는 확인할 수 없습니다: {path}")
+            return False, messages
+        if removal_state() != "removed":
+            messages.append(f"Git 명령이 성공을 반환했지만 워크트리 제거 상태가 일치하지 않습니다: {path}")
+            return False, messages
+        if not report_removed():
+            return False, messages
+    return True, messages
+
+
 def _process_info_for_pid(pid: int, user: Optional[str] = None) -> Optional[ProcessInfo]:
     current = [listener for listener in list_listeners() if listener.pid == pid]
     selected = next((item for item in current if user is None or item.user == user), None)
@@ -569,7 +915,12 @@ def _verified_before_signal(
     return True, ""
 
 
-def terminate_ports(ports: Sequence[int], force: bool = False, grace_seconds: float = 4.0) -> Tuple[bool, List[str]]:
+def terminate_ports(
+    ports: Sequence[int],
+    force: bool = False,
+    grace_seconds: float = 4.0,
+    pre_signal_check: Optional[Callable[[int, ProcessInfo], Tuple[bool, str]]] = None,
+) -> Tuple[bool, List[str]]:
     """포트 소유자를 재확인한 후 현재 사용자의 확정 개발 서버만 종료한다."""
     initial = list_listeners()
     initial_map = listeners_by_port(initial)
@@ -621,6 +972,12 @@ def terminate_ports(ports: Sequence[int], force: bool = False, grace_seconds: fl
             messages.append(f"PID {pid}: {reason}")
             all_safe = False
             continue
+        if pre_signal_check:
+            ok, reason = pre_signal_check(pid, expected)
+            if not ok:
+                messages.append(f"PID {pid}: 종료 직전 워크트리 재확인 실패 — {reason}")
+                all_safe = False
+                continue
         try:
             os.kill(pid, signal.SIGTERM)
         except ProcessLookupError:
@@ -649,6 +1006,12 @@ def terminate_ports(ports: Sequence[int], force: bool = False, grace_seconds: fl
             messages.append(f"PID {pid}: 강제 종료 전 재확인 실패 — {reason}")
             all_safe = False
             continue
+        if pre_signal_check:
+            ok, reason = pre_signal_check(pid, expected)
+            if not ok:
+                messages.append(f"PID {pid}: 강제 종료 직전 워크트리 재확인 실패 — {reason}")
+                all_safe = False
+                continue
         try:
             os.kill(pid, signal.SIGKILL)
         except (ProcessLookupError, PermissionError) as exc:
@@ -973,10 +1336,14 @@ def parser() -> argparse.ArgumentParser:
     detail.add_argument("port", type=port_is_valid)
     repo = commands.add_parser("repo", help="저장소 이름이 정확히 일치하는 모든 워크트리 조회")
     repo.add_argument("repo_name", help="Git 저장소 이름(정확 일치)")
-    delete = commands.add_parser("delete", help="포트 하나 또는 여러 개발 서버를 정상 종료")
+    delete = commands.add_parser("delete", help="포트의 개발 서버를 종료하고, 옵션으로 연결 워크트리를 제거")
     delete.add_argument("ports", nargs="+", type=port_is_valid)
     delete.add_argument("--force", action="store_true", help="정상 종료 후에도 남은 대상 서버에 SIGKILL")
     delete.add_argument("--grace-seconds", type=float, default=4.0, help="SIGTERM 후 확인할 시간(기본 4초)")
+    delete.add_argument(
+        "--remove-worktree", action="store_true",
+        help="명시 포트 종료 후 안전 조건을 통과한 연결 Git linked worktree도 제거",
+    )
     replace = commands.add_parser("replace", help="현재 저장소의 개발 서버를 포트에 다시 실행")
     replace.add_argument("port", type=port_is_valid)
     replace.add_argument("--force", action="store_true", help="기존 개발 서버가 SIGTERM에 응답하지 않을 때만 강제 종료")
@@ -1000,7 +1367,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             if args.grace_seconds < 0:
                 print("실패: grace-seconds는 0 이상이어야 합니다.")
                 return 2
-            ok, messages = terminate_ports(args.ports, force=args.force, grace_seconds=args.grace_seconds)
+            if args.remove_worktree:
+                ok, messages = delete_ports_and_worktrees(
+                    args.ports, force=args.force, grace_seconds=args.grace_seconds
+                )
+            else:
+                ok, messages = terminate_ports(args.ports, force=args.force, grace_seconds=args.grace_seconds)
             for message in messages:
                 print(message)
             return 0 if ok else 1

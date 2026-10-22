@@ -1,29 +1,40 @@
 ---
 name: port-manager
-description: "로컬 프런트엔드 개발 서버의 TCP 포트, 프로젝트와 Git 워크트리, 프로세스 시작 시각을 macOS에서 조회·종료·교체할 때 사용합니다."
+description: "macOS 로컬 개발 서버 포트를 조회·종료·교체하거나 명시된 linked worktree를 안전하게 제거합니다. `/port-manger:all`, `/port-manger:detail 5173`, `/port-manger:repo:정확한레포이름`, `/port-manger:delete 5173`, `/port-manger:replace 5173`, `/port-manger:delete:worktree 5173`, `5173 포트랑 워크트리 제거해`, `$port-manager` 요청에 사용합니다."
 metadata:
-  short-description: "로컬 개발 서버 포트를 안전하게 조회하고 교체합니다."
+  short-description: "로컬 개발 서버 포트와 linked worktree를 안전하게 관리합니다."
 ---
 
 # Port Manager
 
-로컬 개발 서버의 포트 점유를 사람이 읽기 쉽게 확인하고, 사용자가 지정한 포트의 확인된 개발 서버만 정상 종료하거나 현재 작업 폴더의 개발 서버로 교체합니다. 실제 프로세스 탐색과 포트 변경에는 이 스킬의 `scripts/port_manager.py`를 사용합니다.
+로컬 개발 서버의 포트 점유를 사람이 읽기 쉽게 확인하고, 사용자가 지정한 포트의 확인된 개발 서버만 정상 종료하거나 현재 작업 폴더의 개발 서버로 교체합니다. 사용자가 포트 종료와 연결된 Git linked worktree 삭제를 함께 명시한 경우에만 안전 검사를 거쳐 워크트리를 제거합니다. 실제 프로세스 탐색과 포트 변경에는 이 스킬의 `scripts/port_manager.py`를 사용합니다.
 
-## 실행 방법
+## 사용자 호출 별칭
 
-Codex에서 `$port-manager all`, `$port-manager detail 5173`, `$port-manager repo frontend`, `$port-manager delete 3000 5173`, `$port-manager replace 4173`처럼 호출하거나 자연어로 요청합니다. `/port-manager:all` 슬래시 명령은 등록하지 않습니다. `port-manger`는 오타 별칭으로 이해하되 정식 이름은 `port-manager`입니다.
+정식 패키지와 Skill 이름은 `port-manager`입니다. 사용자가 요청한 기본 사용자-facing 호출 표기는 오타 별칭 `port-manger`입니다. 아래 slash 모양 문자열이 일반 메시지로 들어오면 해당 기능 의도로 처리하고, 기존 `$port-manager` 호출도 계속 지원합니다.
 
-CLI 헬퍼는 이 Skill 패키지의 `scripts/port-manager` 및 `scripts/port_manager.py`에 포함되어 있습니다. Codex 공용 Skill을 `npx skills`로 설치했을 때 기본 직접 실행 경로는 다음과 같습니다.
+- `/port-manger:all`
+- `/port-manger:detail 5173`
+- `/port-manger:repo:정확한레포이름`
+- `/port-manger:delete 5173` — 여러 포트를 함께 지정할 수 있습니다.
+- `/port-manger:replace 5173`
+- `/port-manger:delete:worktree 5173` — 같은 의도의 자연어 예시는 “5173 포트랑 워크트리 제거해”입니다.
+- `$port-manager all`, `$port-manager detail 5173`, `$port-manager repo frontend`, `$port-manager delete 5173`, `$port-manager replace 5173`, `$port-manager delete 5173 --remove-worktree`
+
+이 slash 모양 문자열은 Skill의 요청 의도 별칭입니다. 공식 문서에는 이 colon 형식을 Skill 별칭으로 등록하는 방법이 나오지 않으므로 자동완성 명령이라고 주장하지 않습니다. 입력창이 지원하지 않는 slash 입력을 가로채면 자연어 예시나 `$port-manager` 호출을 사용합니다. Skill을 직접 선택하려면 Codex의 `$` Skill 선택을 사용할 수 있습니다.
+
+`npx skills`로 설치한 Codex 공용 Skill의 CLI 기본 경로는 `~/.agents/skills/port-manager/scripts/port-manager`입니다. Codex 네이티브 플러그인 설치에서는 캐시 경로를 Codex가 관리하므로 Skill을 호출해 사용합니다.
 
 ```bash
 "$HOME/.agents/skills/port-manager/scripts/port-manager" all
 "$HOME/.agents/skills/port-manager/scripts/port-manager" detail 5173
 "$HOME/.agents/skills/port-manager/scripts/port-manager" repo frontend
 "$HOME/.agents/skills/port-manager/scripts/port-manager" delete 3000 5173
+"$HOME/.agents/skills/port-manager/scripts/port-manager" delete 5173 --remove-worktree
 "$HOME/.agents/skills/port-manager/scripts/port-manager" replace 4173
 ```
 
-Codex 네이티브 플러그인의 캐시 경로는 Codex가 관리합니다. 이 경우 Codex에서 Skill을 호출하거나 로드된 Skill 패키지의 `scripts/` 경로를 사용합니다.
+Codex의 사용자 정의 슬래시 명령은 이 스킬에서 `/port-manager:all` 또는 오타 경로 `/port-manger:all`로 등록하지 않습니다. 설치된 스킬을 `$port-manager`로 선택한 다음 원하는 하위 명령을 말하거나 위 CLI 하위 명령을 실행합니다.
 
 ## 조회 절차
 
@@ -36,6 +47,10 @@ Codex 네이티브 플러그인의 캐시 경로는 Codex가 관리합니다. �
 ## 종료와 교체
 
 - `delete PORT...`와 `replace PORT`는 포트 번호만 받습니다. PID를 사용자에게 묻지 않습니다.
+- 기본 `delete PORT...`와 `replace PORT`는 워크트리를 제거하지 않습니다. 포트 종료와 워크트리 제거를 함께 요청한 경우에만 `delete PORT... --remove-worktree`를 사용합니다. 예: `$port-manager delete 5173 --remove-worktree` 또는 “5173 포트 내리고 해당 워크트리도 삭제해”.
+- 워크트리 제거 전에 포트 소유 프로세스의 PID·시작 시각·cwd·포트 소유자와 Git 워크트리 등록·HEAD·브랜치를 확인합니다. 신호를 보내기 직전과 실제 제거 직전에 등록과 상태를 재검사합니다. 선택하지 않은 포트에서 같은 워크트리의 리스너가 하나라도 실행 중이면 종료하거나 제거하지 않습니다.
+- 기본(main) 워크트리, 현재 Codex 실행 디렉터리를 포함하는 워크트리, 잠금·prunable·분리 HEAD 상태, 소속이 모호한 워크트리는 제거하지 않습니다. 수정 파일·미추적 파일·Git이 무시하는 파일이 있으면 보존을 위해 중단합니다. 이 옵션은 일반 `git worktree remove`만 실행하며 강제 삭제나 디렉터리 직접 삭제로 우회하지 않습니다.
+- 제거 전 현재 HEAD와 연결 브랜치가 같은 커밋인지 확인하고, 제거 후 브랜치가 같은 커밋을 가리키는지 검증합니다. 브랜치는 삭제하지 않습니다. 서버 종료 뒤 다른 프로세스가 포트를 점유하거나 재검사·일반 제거가 실패하면 서버와 워크트리의 실제 상태를 각각 보고합니다. 여러 포트를 지정하면 모두 같은 Git 저장소에 속해야 합니다.
 - PID, 프로세스 시작 시각, 실행 파일 요약, 작업 디렉터리, 계정과 macOS `lsof` 소켓 식별자를 신호 전 다시 확인합니다. IPv4·IPv6의 같은 PID 리스너는 한 프로세스로 묶습니다. 포트 소유자가 바뀌었거나 PID 재사용·소켓 재점유 정황이 있으면 중단합니다.
 - 포트에 연결된 모든 고유 프로세스가 현재 계정 소유이고 높은 신뢰도로 개발 서버라고 분류될 때만 `SIGTERM`을 보냅니다. DB·시스템·분류 불명·다른 계정 프로세스는 자동 종료하지 않습니다. 기본 동작은 정상 종료 후 포트 해제를 확인하는 것입니다.
 - 정상 종료가 제한 시간 안에 끝나지 않아도 `SIGKILL`로 자동 승격하지 않습니다. 상태를 보고하고, 사용자가 강제 종료를 명시적으로 요청하거나 확인한 뒤에만 `--force`를 추가합니다.
